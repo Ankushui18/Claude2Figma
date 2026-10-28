@@ -1,4 +1,4 @@
-// DeckBridge Free — popup
+// Claude2Figma — popup
 // Deliberately account-free: no login, no server, no quota, no paywall.
 // Capture → local .deck.json download → import in the Figma plugin.
 
@@ -158,7 +158,7 @@ function renderScopePicker(artboards) {
         </div>
         <p class="screen__meta"><strong>No separate artboards were detected in the design frame.</strong>
         Capture will make one frame from the whole page, including surrounding page UI.
-        If this is a Claude canvas, wait for all screens to render, zoom so they are visible, then reopen DeckBridge.</p>
+        If this is a Claude canvas, wait for all screens to render, zoom so they are visible, then reopen Claude2Figma.</p>
       </div>`;
   }
   if (artboards.length === 1) {
@@ -279,8 +279,8 @@ function renderHome() {
     const detectionText = artboards.length && state.captureScope === 'page'
       ? 'Whole-page override selected: the detected artboard split will be ignored and the design frame will be captured as one frame. Use this if a detected “artboard” is only a panel or card.'
       : artboards.length
-        ? `${slides} ${kind} ready on this tab. DeckBridge captures the design inside each artboard—not the outer Claude canvas.`
-        : 'No separate artboards were detected. DeckBridge can capture this page as one frame, but it cannot split it into screens yet.';
+        ? `${slides} ${kind} ready on this tab. Claude2Figma captures the design inside each artboard—not the outer Claude canvas.`
+        : 'No separate artboards were detected. Claude2Figma can capture this page as one frame, but it cannot split it into screens yet.';
     body = `
       <h2 class="screen__title">Capture artboards</h2>
       <div class="card">
@@ -302,9 +302,9 @@ function renderHome() {
         ? 'This page can’t be captured'
         : probeError ? 'Couldn’t inspect this tab' : 'No deck on this tab';
     const emptyBody = figmaOnly
-      ? 'This Chrome extension does not connect to Figma. Run DeckBridge inside this Figma file, choose “Copy Figma canvas”, select the frames, and download or copy the .deck.json. It can then be imported in Figma desktop or under any other Figma login.'
+      ? 'This Chrome extension does not connect to Figma. Run Claude2Figma inside this Figma file, choose “Copy Figma canvas”, select the frames, and download or copy the .deck.json. It can then be imported in Figma desktop or under any other Figma login.'
       : unsupported
-        ? 'Chrome does not allow extensions to read browser/settings pages. Open a normal web page or your Claude Design file, then reopen DeckBridge.'
+        ? 'Chrome does not allow extensions to read browser/settings pages. Open a normal web page or your Claude Design file, then reopen Claude2Figma.'
         : probeError
           ? `${escapeHtml(p.error || 'Inspection timed out.')} Reload the tab, wait for the design to finish rendering, then try again.`
           : 'Open a design in Claude Design (or any web page you want to turn into Figma layers), then click capture.';
@@ -322,8 +322,8 @@ function renderHome() {
         ? `${btn('Try inspecting again', 'home-retry-probe')}${btn('Capture this page anyway', 'home-capture', 'ghost')}`
         : btn('Capture this page anyway', 'home-capture')}
       <p class="screen__meta">${figmaOnly
-        ? 'No DeckBridge account, connection, or matching Figma login is required. The .deck.json file is the transfer.'
-        : 'DeckBridge is optimized for Claude Design decks, but it can serialize almost any normal page into editable layers.'}</p>`;
+        ? 'No Claude2Figma account, connection, or matching Figma login is required. The .deck.json file is the transfer.'
+        : 'Claude2Figma is optimized for Claude Design decks, but it can serialize almost any normal page into editable layers.'}</p>`;
   }
   screenEl('home').innerHTML = body;
 }
@@ -389,9 +389,9 @@ function renderSuccess() {
       ${statsLine}
     </div>
     ${captureWarnings(r)}
-    ${c.historySaved === false ? '<div class="toast" style="border-color:var(--warning);color:#f0d9a8">⚠️ This capture could not be kept in Decks history. Download the .deck.json now before closing DeckBridge.</div>' : ''}
+    ${c.historySaved === false ? '<div class="toast" style="border-color:var(--warning);color:#f0d9a8">⚠️ This capture could not be kept in Decks history. Download the .deck.json now before closing Claude2Figma.</div>' : ''}
     <p class="screen__subtitle"><strong>Next:</strong> download the file, then in Figma
-    run the <em>DeckBridge</em> plugin and drop it in.</p>
+    run the <em>Claude2Figma</em> plugin and drop it in.</p>
     ${state.toast ? `<div class="toast toast--success">${escapeHtml(state.toast)}</div>` : ''}
     ${btn('Download .deck.json', 'success-download')}
     ${btn('Copy JSON (paste into plugin)', 'success-copy', 'ghost')}
@@ -446,7 +446,7 @@ function renderHowTo() {
       <strong>1 · In Chrome</strong>
       <ol class="screen__meta">
         <li>Open your deck in Claude Design.</li>
-        <li>Click the DeckBridge icon and choose <em>Full canvas</em>,
+        <li>Click the Claude2Figma icon and choose <em>Full canvas</em>,
         <em>Selected artboards</em>, <em>Single artboard</em>, or <em>Whole page</em>
         if a detected artboard is really just part of a larger screen.</li>
         <li>Capture, then click <em>Download .deck.json</em>.</li>
@@ -455,17 +455,17 @@ function renderHowTo() {
     <div class="card">
       <strong>Copy a Figma canvas (inside the plugin)</strong>
       <ol class="screen__meta">
-        <li>Open the source file in Figma—browser or desktop—and run <em>Plugins → DeckBridge</em>.</li>
+        <li>Open the source file in Figma—browser or desktop—and run <em>Plugins → Claude2Figma</em>.</li>
         <li>Choose <em>Copy Figma canvas</em>, then <em>Current selection</em>, <em>Selected frames</em>, <em>Full current page</em>, or <em>All pages</em>.</li>
         <li>Click <em>Copy canvas</em>, then download or copy the <code>.deck.json</code>.</li>
-        <li>Open DeckBridge in the destination file and import/resize that file.</li>
+        <li>Open Claude2Figma in the destination file and import/resize that file.</li>
       </ol>
       <p class="screen__meta">No Chrome-extension connection or matching Figma login is needed. If Figma does not list this local development plugin under another account, import the same plugin manifest once there.</p>
     </div>
     <div class="card">
       <strong>2 · In Figma</strong>
       <ol class="screen__meta">
-        <li>Plugins → DeckBridge Free — Claude Design Importer.</li>
+        <li>Plugins → Claude2Figma — Claude Design Importer.</li>
         <li>Drop the <code>.deck.json</code> file (or paste the JSON).</li>
         <li>Check the artboards to import and type an exact size for any of them.</li>
         <li>Click <em>Import deck</em> — each checked screen arrives as a clean,
@@ -529,7 +529,7 @@ function sendMessage(msg, timeoutMs = 0) {
       timer = setTimeout(() => finish({
         ok: false,
         reason: 'probe-timeout',
-        error: `DeckBridge could not inspect this tab within ${Math.round(timeoutMs / 1000)} seconds.`,
+        error: `Claude2Figma could not inspect this tab within ${Math.round(timeoutMs / 1000)} seconds.`,
       }), timeoutMs);
     }
     try {

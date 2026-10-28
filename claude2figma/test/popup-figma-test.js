@@ -1,4 +1,4 @@
-// Chrome popup on a Figma tab: DeckBridge must not offer a Chrome↔Figma
+// Chrome popup on a Figma tab: Claude2Figma must not offer a Chrome↔Figma
 // connection or extension-driven Figma copy. It should direct the user to
 // the standalone Copy Figma canvas flow inside the Figma plugin, whose
 // .deck.json can be imported under any browser/desktop Figma login.
@@ -22,7 +22,7 @@ if (!JSDOM) {
   const html = fs.readFileSync(path.join(__dirname, '..', 'extension', 'popup.html'), 'utf8');
   const popupJs = fs.readFileSync(path.join(__dirname, '..', 'extension', 'popup.js'), 'utf8');
   const dom = new JSDOM(html, {
-    url: 'chrome-extension://deckbridge/popup.html',
+    url: 'chrome-extension://claude2figma/popup.html',
     runScripts: 'outside-only',
     pretendToBeVisual: true,
   });

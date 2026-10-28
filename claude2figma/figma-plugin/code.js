@@ -1,4 +1,4 @@
-// DeckBridge Free — Figma plugin (sandbox)
+// Claude2Figma — Figma plugin (sandbox)
 // Rebuilds a captured .deck.json as native, editable Figma layers.
 // Fully offline: images arrive base64-inlined in the file, fonts are the
 // ones already available in Figma. No network, no account, no limits.
@@ -1444,8 +1444,9 @@ function sizeOptionForSlide(options, index) {
 // ================================================================= import
 function validateDeck(payload) {
   if (!payload || typeof payload !== 'object') throw new Error('That file is not valid JSON.');
-  if (payload.schema && payload.schema !== 'deckbridge') {
-    throw new Error('This JSON was not captured by DeckBridge. Use the DeckBridge Chrome extension to capture your deck.');
+  // Accept the current schema id and the legacy one used by pre-rename builds.
+  if (payload.schema && payload.schema !== 'claude2figma' && payload.schema !== 'deckbridge') {
+    throw new Error('This JSON was not captured by Claude2Figma. Use the Claude2Figma Chrome extension to capture your deck.');
   }
   if (!payload.root || !payload.root.rect) {
     throw new Error('Deck file is missing its layer tree (root). Re-capture the deck and try again.');
@@ -2155,7 +2156,7 @@ async function exportFigmaCanvas(options) {
   const rootName = figma.root && figma.root.name && figma.root.name !== 'Document'
     ? figma.root.name : 'Figma canvas copy';
   const payload = {
-    schema: 'deckbridge',
+    schema: 'claude2figma',
     schemaVersion: 1,
     title: rootName,
     sourceUrl: '',

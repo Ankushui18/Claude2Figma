@@ -235,7 +235,7 @@ async function scenario(options, check) {
       },
     });
     const payload = {
-      schema: 'deckbridge', schemaVersion: 1, title: 'Clean import', slideCount: 1,
+      schema: 'claude2figma', schemaVersion: 1, title: 'Clean import', slideCount: 1,
       root: {
         type: 'FRAME', name: 'Clean Screen', role: 'slide',
         rect: { x: 0, y: 0, w: 220, h: 180 },
@@ -293,7 +293,7 @@ async function scenario(options, check) {
       },
     });
     const payload = {
-      schema: 'deckbridge', schemaVersion: 1, title: 'No wrapper artboard', slideCount: 1,
+      schema: 'claude2figma', schemaVersion: 1, title: 'No wrapper artboard', slideCount: 1,
       root: {
         type: 'FRAME', name: 'Direct Content Screen', role: 'slide',
         rect: { x: 0, y: 0, w: 300, h: 200 },

@@ -1,4 +1,4 @@
-# DeckBridge Free — Claude Design & Figma canvas copy → Figma, with no paid anything
+# Claude2Figma — Claude Design & Figma canvas copy → Figma, with no paid anything
 
 A **100% free, local-only** alternative to paid "Claude Design to Figma"
 importers. It does the same job — capture a deck in Claude Design and rebuild
@@ -10,7 +10,7 @@ different artboard size. The Chrome extension never connects to Figma:
 
 **Current release: v1.7.0.**
 
-| Paid original | DeckBridge Free |
+| Paid original | Claude2Figma |
 |---|---|
 | Email login (6-digit code) required | **No account at all** |
 | Decks uploaded to their server | **Nothing leaves your machine** — the deck is a local `.deck.json` file |
@@ -70,7 +70,7 @@ What gets converted:
   auto-download — the success screen has the one download button
 - **Artboard-only capture + cleaner layers (v1.3)**: choose **Full canvas**,
   **Selected artboards**, or **Single artboard** in Chrome. When Claude nests a real screen inside
-  a larger labelled artboard host, DeckBridge captures the inside screen and
+  a larger labelled artboard host, Claude2Figma captures the inside screen and
   skips the surrounding canvas label/chrome. Duplicate same-size outer/inner
   screens are merged, clipping wrappers that clip nothing are dissolved, and
   leaf color/image boxes become rectangles instead of pointless frames.
@@ -86,7 +86,7 @@ What gets converted:
   without shifting other flow layers. Painted cards, real clipping frames,
   meaningful Auto Layout groups, and other visible containers are kept.
 - **Standalone Figma canvas copy (no connection)**: in Figma browser or
-  desktop, run DeckBridge and choose **Copy Figma canvas**. The plugin itself
+  desktop, run Claude2Figma and choose **Copy Figma canvas**. The plugin itself
   lists the native frames and exports **Full current page**, **Selected
   frames**, **Current selection**, or **All pages** to `.deck.json`; the user
   can then download/copy that file or immediately import a resized copy.
@@ -115,7 +115,7 @@ What gets converted:
 
 Short answer: **Figma does not allow a Chrome extension to read/build the
 canvas alone — for anyone.** There is no such thing as a "Figma browser
-extension". DeckBridge therefore keeps the jobs separate and does **not**
+extension". Claude2Figma therefore keeps the jobs separate and does **not**
 connect Chrome to Figma: the extension captures Claude/web pages, while the
 plugin imports those files and can also read/export a Figma canvas itself
 through Figma's Plugin API:
@@ -141,7 +141,7 @@ source and import it wherever you need it. Once imported via manifest, the
 plugin is one click under the **Plugins** menu—no need to touch its files
 again. If Figma does not list a local development plugin under another
 account, import the same manifest there once; that is a Figma plugin
-installation step, not a DeckBridge login.
+installation step, not a Claude2Figma login.
 
 ## Install (2 minutes, no build step)
 
@@ -152,13 +152,13 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
 1. Open `chrome://extensions`
 2. Turn on **Developer mode** (top right)
 3. **Load unpacked** → select the **`extension/`** folder from this project
-4. Pin the violet DeckBridge icon
+4. Pin the violet Claude2Figma icon
 
 ### 2 · Figma plugin
 
 1. In Figma desktop (or figma.com): menu **Plugins → Development → Import plugin from manifest…**
 2. Select **`figma-plugin/manifest.json`**
-3. Run it from **Plugins → Development → DeckBridge Free**
+3. Run it from **Plugins → Development → Claude2Figma**
 
 > The manifest `id` is a placeholder for local development — that's fine for
 > personal/team use via "Import plugin from manifest". If you later publish to
@@ -169,14 +169,14 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
 ### A · Claude Design → Figma
 
 1. Open your deck in **Claude Design** (`claude.ai/design`).
-2. Click the DeckBridge icon. It lists the canvas artboards it found; choose
+2. Click the Claude2Figma icon. It lists the canvas artboards it found; choose
    **Full canvas** to capture every screen, **Selected artboards** to tick
    multiple screens, **Single artboard** to choose exactly one, or **Whole
    page** to ignore a mistaken artboard split. Capture → **Download
    .deck.json** (recent captures also stay under the popup's **Decks** tab,
    stored only in your browser). Only the inside of the checked artboards is
    serialized in the first three modes.
-3. In Figma, open the DeckBridge plugin and **drop the file** (or use
+3. In Figma, open the Claude2Figma plugin and **drop the file** (or use
    *Copy JSON* in the extension + paste for small decks). Once the file is
    loaded, the plugin shows the **artboard sizes detected on the canvas**
    (e.g. `1440 × 900 · ×4`, `390 × 844 · ×2`) and two levels of size control:
@@ -204,7 +204,7 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
 ### B · Figma canvas → another Figma file/page size (plugin only)
 
 1. Open the source design in **Figma**, in either the browser or desktop app.
-2. Run **Plugins → DeckBridge Free** and choose **Copy Figma canvas**. No
+2. Run **Plugins → Claude2Figma** and choose **Copy Figma canvas**. No
    Chrome extension, Enable button, connection, or matching account is needed.
 3. In the plugin, choose:
    - **Current selection** — whatever frames/layers are selected in Figma
@@ -215,13 +215,13 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
    To resize a copy in the same file immediately, use **Import this copy
    into this file** instead.
 5. Open the destination Figma file/page—browser or desktop, same or a
-   different Figma login—run DeckBridge → **Import to Figma**, drop/paste the
+   different Figma login—run Claude2Figma → **Import to Figma**, drop/paste the
    copy, choose Original / 1920 / 1600 / 1440 / mobile / custom artboard
    sizes, then import.
 
 > Nothing is paired or synced between accounts. The `.deck.json` file is the
 > portable transfer, so different browser/desktop Figma logins are fine. The
-> destination only needs DeckBridge available as a plugin to import the file.
+> destination only needs Claude2Figma available as a plugin to import the file.
 
 ## Test without Claude
 
@@ -242,7 +242,7 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
 ## Project layout
 
 ```
-deckbridge-free/
+claude2figma/
 ├─ extension/            Chrome MV3 extension (load unpacked as-is)
 │  ├─ manifest.json
 │  ├─ background.js      finds design frames; Claude/web capture + assembly
@@ -289,7 +289,7 @@ mapping, `border-image`/mask approximations, and multiple box-shadow ordering.
 ## Publishing (optional)
 
 - **Chrome Web Store:** zip the *contents* of `extension/`
-  (`deckbridge-extension.zip` in this folder is already packed that way).
+  (`claude2figma-extension.zip` in this folder is already packed that way).
   Fill in the privacy section honestly: *no data collected, nothing sold* —
   the code backs that up.
 - **Figma Community:** submit via a Figma org with the contents of

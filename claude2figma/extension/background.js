@@ -1,4 +1,4 @@
-// DeckBridge Free — background service worker
+// Claude2Figma — background service worker
 // Local-only: finds the frame that holds the design, injects the serializer,
 // and hands the captured JSON back to the popup. No network calls, ever.
 
@@ -447,8 +447,8 @@ function isFigmaEditorUrl(rawUrl) {
   }
 }
 
-const FIGMA_PLUGIN_ONLY_MESSAGE = 'Figma canvas copy is handled inside the DeckBridge Figma plugin, not by the Chrome extension. '
-  + 'In Figma, run DeckBridge, choose “Copy Figma canvas”, select what to copy, and download or copy the .deck.json. '
+const FIGMA_PLUGIN_ONLY_MESSAGE = 'Figma canvas copy is handled inside the Claude2Figma Figma plugin, not by the Chrome extension. '
+  + 'In Figma, run Claude2Figma, choose “Copy Figma canvas”, select what to copy, and download or copy the .deck.json. '
   + 'That file can be imported under any Figma browser or desktop login; the Chrome extension does not connect to Figma.';
 
 async function getActiveTab() {
@@ -673,7 +673,7 @@ async function handleCaptureResult(message, sender) {
 
   // Persist *in the service worker* before resolving the popup's request.
   // If the user clicked away and Chrome destroyed the popup, the completed
-  // deck is still waiting in Decks when DeckBridge is reopened. This also
+  // deck is still waiting in Decks when Claude2Figma is reopened. This also
   // handles a service-worker restart: the result message wakes the worker,
   // and the stored session identifies the capture even though the original
   // in-memory Promise is gone.
@@ -738,9 +738,9 @@ async function captureFrameWithSerializer(tab, frameId, captureOptions, meta) {
     await chrome.scripting.executeScript({
       target: { tabId: tab.id, frameIds: [frameId] },
       func: (serialized) => {
-        try { globalThis.__DECKBRIDGE_CAPTURE_OPTIONS__ = JSON.parse(serialized); } catch (_) { /* DOM fallback below */ }
+        try { globalThis.__CLAUDE2FIGMA_CAPTURE_OPTIONS__ = JSON.parse(serialized); } catch (_) { /* DOM fallback below */ }
         if (document.documentElement) {
-          document.documentElement.setAttribute('data-deckbridge-capture-options', serialized);
+          document.documentElement.setAttribute('data-claude2figma-capture-options', serialized);
         }
       },
       args: [JSON.stringify(captureOptions)],
@@ -941,7 +941,7 @@ async function captureIframeArtboards(tab, plan, captureOptions, parentMeta) {
     children: slides,
   };
   const payload = {
-    schema: 'deckbridge',
+    schema: 'claude2figma',
     schemaVersion: 1,
     title: tab.title || '',
     sourceUrl: tab.url || '',
@@ -971,7 +971,7 @@ async function captureActiveTab(rawOptions) {
   if (running) {
     return {
       ok: false, captureId,
-      error: 'A capture is already running for this tab. Wait for it to finish — if the popup closed, reopen DeckBridge and check the Decks tab.',
+      error: 'A capture is already running for this tab. Wait for it to finish — if the popup closed, reopen Claude2Figma and check the Decks tab.',
     };
   }
   const commonMeta = {

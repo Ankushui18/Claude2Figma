@@ -103,7 +103,7 @@ const fromPlugin = (pluginMessage) => {
   const sentBefore = sent.length;
   window.dispatchEvent(new window.MessageEvent('message', {
     data: {
-      deckbridgeBridge: '1', type: 'export', requestId: 'must-be-ignored',
+      claude2figmaBridge: '1', type: 'export', requestId: 'must-be-ignored',
       options: { scope: 'checklist', frameIds: ['frame-c'] },
     },
     origin: 'https://www.figma.com', source: fakePageWindow,

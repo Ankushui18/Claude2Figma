@@ -211,7 +211,7 @@ async function selectedCase() {
       </main>
     </section>`;
   window.document.body.innerHTML = board('Alpha', 0) + board('Beta', 500);
-  window.__DECKBRIDGE_CAPTURE_OPTIONS__ = { scope: 'single', selectedIndexes: [1] };
+  window.__CLAUDE2FIGMA_CAPTURE_OPTIONS__ = { scope: 'single', selectedIndexes: [1] };
 
   window.eval(injectSrc);
   for (let i = 0; i < 50 && !captured; i += 1) await new Promise((r) => setTimeout(r, 100));
@@ -361,7 +361,7 @@ async function fidelityCase() {
   window.document.getElementById('notes').value = 'Live first\nLive second';
   window.document.getElementById('check').checked = true;
   window.document.getElementById('radio').checked = true;
-  window.__DECKBRIDGE_CAPTURE_OPTIONS__ = { scope: 'page' };
+  window.__CLAUDE2FIGMA_CAPTURE_OPTIONS__ = { scope: 'page' };
 
   window.eval(injectSrc);
   for (let i = 0; i < 50 && !captured; i += 1) await new Promise((r) => setTimeout(r, 100));

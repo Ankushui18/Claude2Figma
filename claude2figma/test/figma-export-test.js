@@ -1,6 +1,6 @@
 // Native Figma-canvas export test: run figma-plugin/code.js against a mock
 // Figma document, list its frames, then export selected/checklist scopes to
-// the same DeckBridge JSON used by Claude captures.
+// the same Claude2Figma JSON used by Claude captures.
 //   node test/figma-export-test.js
 'use strict';
 
@@ -164,7 +164,7 @@ vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'figma-plugin', 'code
   assert(exported, 'checklist export posted');
   assert.strictEqual(exported.slides, 2);
   const payload = JSON.parse(exported.json);
-  assert.strictEqual(payload.schema, 'deckbridge');
+  assert.strictEqual(payload.schema, 'claude2figma');
   assert.strictEqual(payload.captureReport.detectionMethod, 'figma-plugin');
   assert.strictEqual(payload.root.role, 'deck');
   assert.strictEqual(payload.root.children.map((s) => s.name).join('|'), 'Desktop Home|Settings');
@@ -188,5 +188,5 @@ vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'figma-plugin', 'code
   assert(selectionExport && selectionExport.slides === 1, 'selection export has one artboard');
   assert.strictEqual(JSON.parse(selectionExport.json).root.name, 'Desktop Home');
 
-  console.log('✅ figma-export-test passed (list → checklist/selection → DeckBridge JSON)');
+  console.log('✅ figma-export-test passed (list → checklist/selection → Claude2Figma JSON)');
 })().catch((e) => { console.error('❌', e); process.exit(1); });

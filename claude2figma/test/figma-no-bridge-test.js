@@ -20,7 +20,7 @@ for (const [label, source] of [
   ['plugin UI', pluginUi],
 ]) {
   assert(!source.includes('Enable Chrome extension copy'), `${label} has no Enable step`);
-  assert(!source.includes('deckbridgeBridge'), `${label} has no page bridge protocol`);
+  assert(!source.includes('claude2figmaBridge'), `${label} has no page bridge protocol`);
   assert(!source.includes('extensionBridge'), `${label} has no extension bridge state`);
 }
 assert(!background.includes('figmaBridgeRequestInPage'), 'background has no Figma-page relay');

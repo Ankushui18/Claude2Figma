@@ -1,4 +1,4 @@
-// DeckBridge Free — page serializer (injected into the design frame)
+// Claude2Figma — page serializer (injected into the design frame)
 // v1.3: pierces shadow DOM and same-origin iframes, captures full or
 // selected canvas artboards, strips outer artboard shells down to the
 // actual screen, collapses duplicate wrappers, and recovers safe Auto
@@ -1486,7 +1486,7 @@
       : slideEls.map((_, i) => i));
     const wantedTotal = Math.max(1, wanted.size);
     if (captureOptions && captureOptions.scope !== 'full' && wanted.size === 0) {
-      throw new DeckStageError('The selected slide is no longer available. Re-open DeckBridge and choose it again.');
+      throw new DeckStageError('The selected slide is no longer available. Re-open Claude2Figma and choose it again.');
     }
     if (ctx.report) ctx.report.selectedArtboards = wanted.size;
 
@@ -2162,15 +2162,15 @@
   function readCaptureOptions() {
     let raw = null;
     try {
-      raw = globalThis.__DECKBRIDGE_CAPTURE_OPTIONS__ || null;
-      delete globalThis.__DECKBRIDGE_CAPTURE_OPTIONS__;
+      raw = globalThis.__CLAUDE2FIGMA_CAPTURE_OPTIONS__ || null;
+      delete globalThis.__CLAUDE2FIGMA_CAPTURE_OPTIONS__;
     } catch (_) { raw = null; }
     if (!raw && document.documentElement) {
-      const attr = document.documentElement.getAttribute('data-deckbridge-capture-options');
+      const attr = document.documentElement.getAttribute('data-claude2figma-capture-options');
       if (attr) { try { raw = JSON.parse(attr); } catch (_) { raw = null; } }
     }
     if (document.documentElement) {
-      document.documentElement.removeAttribute('data-deckbridge-capture-options');
+      document.documentElement.removeAttribute('data-claude2figma-capture-options');
     }
     return sanitizeCaptureOptions(raw);
   }
@@ -2205,7 +2205,7 @@
       const selectedTree = captureArtboards(artboards, ctx, onProgress, captureOptions);
       if (selectedTree) return selectedTree;
       if (captureOptions.scope !== 'full') {
-        throw new Error('The chosen artboard is no longer available. Re-open DeckBridge and choose it again.');
+        throw new Error('The chosen artboard is no longer available. Re-open Claude2Figma and choose it again.');
       }
     }
     if (artboards.length === 1) {
@@ -2265,7 +2265,7 @@
       ctx.report.imagesFetched = stats.fetched;
       ctx.report.imagesFailed = stats.failed;
       const payload = {
-        schema: 'deckbridge',
+        schema: 'claude2figma',
         schemaVersion: SCHEMA_VERSION,
         title: document.title || '',
         sourceUrl: location.href,
@@ -2284,8 +2284,8 @@
       let captureId = (ctx.captureOptions && ctx.captureOptions.captureId) || '';
       if (!captureId) {
         try {
-          const raw = globalThis.__DECKBRIDGE_CAPTURE_OPTIONS__
-            || JSON.parse(document.documentElement.getAttribute('data-deckbridge-capture-options') || 'null');
+          const raw = globalThis.__CLAUDE2FIGMA_CAPTURE_OPTIONS__
+            || JSON.parse(document.documentElement.getAttribute('data-claude2figma-capture-options') || 'null');
           captureId = sanitizeCaptureOptions(raw).captureId || '';
         } catch (_) { captureId = ''; }
       }

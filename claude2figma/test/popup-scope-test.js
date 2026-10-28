@@ -21,7 +21,7 @@ if (!JSDOM) {
   const html = fs.readFileSync(path.join(__dirname, '..', 'extension', 'popup.html'), 'utf8');
   const popupJs = fs.readFileSync(path.join(__dirname, '..', 'extension', 'popup.js'), 'utf8');
   const dom = new JSDOM(html, {
-    url: 'chrome-extension://deckbridge/popup.html',
+    url: 'chrome-extension://claude2figma/popup.html',
     runScripts: 'outside-only',
     pretendToBeVisual: true,
   });
@@ -61,7 +61,7 @@ if (!JSDOM) {
             ok: true,
             title: 'Product Canvas',
             json: JSON.stringify({
-              schema: 'deckbridge', schemaVersion: 1, title: 'Product Canvas', slideCount: 1,
+              schema: 'claude2figma', schemaVersion: 1, title: 'Product Canvas', slideCount: 1,
               captureReport: {
                 nodes: 42, layersRemoved: 7, inferredAutoLayouts: 2,
                 scope: 'single', artboardsDetected: 3,

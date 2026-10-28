@@ -1,4 +1,4 @@
-# DeckBridge deck-file schema (`.deck.json`)
+# Claude2Figma deck-file schema (`.deck.json`)
 
 The Chrome extension and the Figma plugin communicate through one local JSON
 file. No server is involved: the extension serializes a web page (optimized for
@@ -10,7 +10,7 @@ downloads/copies the JSON, and the plugin rebuilds it as native Figma layers.
 
 ```jsonc
 {
-  "schema": "deckbridge",
+  "schema": "claude2figma",
   "schemaVersion": 1,
   "title": "My pitch deck",          // tab / document title
   "sourceUrl": "https://…",          // where it was captured (may be "")

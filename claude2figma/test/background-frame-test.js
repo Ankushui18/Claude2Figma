@@ -119,7 +119,7 @@ function send(message) {
 
   const figmaCapture = await send({ type: 'capture', options: { scope: 'full' } });
   assert.strictEqual(figmaCapture.ok, false, 'extension does not scrape or connect to Figma');
-  assert(figmaCapture.error.includes('inside the DeckBridge Figma plugin'),
+  assert(figmaCapture.error.includes('inside the Claude2Figma Figma plugin'),
     'capture directs the user to the standalone plugin flow');
   assert(figmaCapture.error.includes('any Figma browser or desktop login'),
     'capture explains the exported file is account-independent');
