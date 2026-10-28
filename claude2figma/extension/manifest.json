@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Claude2Figma — Claude Design to Figma",
-  "version": "1.7.0",
-  "description": "Capture Claude Design decks and ordinary web pages in Chrome as local .deck.json files for native, editable Figma layers. Figma canvas copy runs separately inside the Figma plugin—no account, connection, or Claude2Figma server.",
+  "version": "1.8.0",
+  "description": "Capture Claude Design & web pages as local .deck.json files that import to Figma as native editable layers. No account, no server.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",

@@ -1,0 +1,20 @@
+name: tests
+
+on:
+  push:
+    branches: [main, 'arena/**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dev dependencies (jsdom + icon renderer)
+        run: npm ci
+      - name: Run full headless suite (12 tests)
+        run: npm test
