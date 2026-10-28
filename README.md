@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="claude2figma/brand/logo.svg" width="104" alt="Claude2Figma logo">
+</p>
+
 # Claude2Figma — Claude Design & Figma canvas copy → Figma, with no paid anything
 
 A **100% free, local-only** alternative to paid "Claude Design to Figma"
@@ -254,17 +258,19 @@ test suite and icon rebuilds.)
 .
 ├─ README.md             you are here
 ├─ LICENSE               MIT
+├─ package.json          dev tooling only (tests + icon rebuilds)
 └─ claude2figma/
    ├─ extension/            Chrome MV3 extension (load unpacked as-is)
    │  ├─ manifest.json
    │  ├─ background.js      finds design frames; Claude/web capture + assembly
    │  ├─ inject.js          DOM → deck JSON serializer (the web capture engine)
    │  ├─ popup.html/css/js  Claude/web capture UI + local deck history
-   │  └─ icons/
+   │  └─ icons/             generated from brand/logo.svg (npm run icons)
    ├─ figma-plugin/         Figma plugin (import via manifest as-is)
    │  ├─ manifest.json      networkAccess: none — structurally offline
    │  ├─ code.js            deck JSON ↔ Figma layers (import + native canvas copy)
    │  └─ ui.html            import/resize UI + Copy Figma canvas UI
+   ├─ brand/logo.svg        the Claude2Figma mark (coral C → layer stack)
    ├─ shared/SCHEMA.md      the .deck.json format both sides speak
    ├─ sample/               ready-to-import sample deck
    └─ test/                 test page + headless tests + run-all runner
