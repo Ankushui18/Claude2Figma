@@ -1,0 +1,17 @@
+{
+  "name": "DeckBridge Free \u2014 Claude Import & Figma Canvas Copy",
+  "id": "9876543210987654321",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": [
+    "figma"
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ],
+    "reasoning": "DeckBridge Free is fully local. It imports .deck.json files captured by the DeckBridge Chrome extension, can export the current Figma canvas to the same local format, and never contacts any server."
+  }
+}

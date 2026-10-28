@@ -1,0 +1,276 @@
+:root {
+  color-scheme: dark;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-md: 15px;
+  --text-lg: 20px;
+  --text-xl: 26px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --ease: cubic-bezier(0.2, 0, 0.2, 1);
+
+  --accent: #d97757;
+  --accent-hover: #c56746;
+  --accent-text: #ffffff;
+  --success: #22a06b;
+  --warning: #d99e30;
+  --danger: #dc5b5b;
+
+  --surface: #1e1e1e;
+  --surface-2: #262626;
+  --surface-3: #303030;
+  --border: #383838;
+  --text: #f2f2f2;
+  --text-muted: #9a9a9a;
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.btn {
+  appearance: none;
+  /* Estes dois são o padrão de <button>, mas NÃO de <a>: sem eles um link
+     estilizado como botão (o "Instalar" do estado vazio) fica inline, com o
+     padding vertical vazando sobre o parágrafo de cima, e sublinhado. */
+  display: inline-block;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease);
+}
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn--full { width: 100%; }
+.btn--primary { background: var(--accent); color: var(--accent-text); }
+.btn--primary:hover:not(:disabled) { background: var(--accent-hover); }
+.btn--ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn--ghost:hover:not(:disabled) { background: var(--surface-2); }
+.btn--danger { background: transparent; color: var(--danger); border-color: var(--border); }
+
+.input { display: flex; flex-direction: column; gap: var(--space-1); }
+.input__label { font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; }
+.input__field {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.input__field:focus { outline: none; border-color: var(--accent); }
+
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+.card--interactive { cursor: pointer; transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.card--interactive:hover { border-color: var(--accent); }
+.card--interactive:active { transform: scale(0.995); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+.badge--neutral { background: var(--surface-3); color: var(--text-muted); }
+.badge--accent { background: var(--accent); color: var(--accent-text); }
+.badge--success { background: var(--success); color: var(--accent-text); }
+.badge--warning { background: var(--warning); color: var(--accent-text); }
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.progress { height: 6px; background: var(--surface-3); border-radius: var(--radius-full); overflow: hidden; }
+.progress__fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width var(--dur-base) var(--ease);
+}
+
+.skeleton { display: flex; flex-direction: column; gap: var(--space-2); }
+.skeleton__line {
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.empty { text-align: center; padding: var(--space-6) var(--space-4); }
+.empty__icon { font-size: 28px; margin-bottom: var(--space-2); }
+.empty__title { margin: 0 0 var(--space-1); font-weight: 600; }
+.empty__body { margin: 0; color: var(--text-muted); font-size: var(--text-xs); }
+.empty__action { margin-top: var(--space-3); }
+
+.toast {
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.toast--danger { border-color: var(--danger); color: var(--danger); }
+.toast--success { border-color: var(--success); color: var(--success); }
+
+.lang,
+.icon-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+.lang:hover,
+.icon-btn:hover { background: var(--surface-2); }
+
+[data-screen] {
+  display: none;
+  animation: screen-in var(--dur-base) var(--ease);
+}
+[data-screen].is-active { display: flex; flex-direction: column; gap: var(--space-4); }
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.paywall__icon { font-size: 32px; text-align: center; }
+
+/* Tela de benefícios (screens/plans.ts). O preço cheio riscado ao lado do de
+   lançamento é estrutural, não enfeite: anunciar 4,80 sozinho é promessa que
+   o 101º assinante cobra. */
+/* Ritmo mais apertado que o padrão de `[data-screen].is-active`: a tela tem
+   seis blocos, e com o espaçamento normal ela estoura o popup de 380x520 da
+   extensão, empurrando o "agora não" para baixo da dobra. Nada foi cortado;
+   só o espaço entre. A classe é do conteúdo, não do id da tela, para valer
+   nas duas superfícies e na galeria de preview. */
+.plans { display: flex; flex-direction: column; gap: var(--space-2); }
+.plans__price { margin: 0; display: flex; align-items: baseline; gap: var(--space-2); }
+.plans__price strong { font-size: var(--text-lg); }
+.plans__price small { color: var(--text-muted); font-size: var(--text-xs); }
+.plans__price-strike { color: var(--text-muted); }
+.plans__benefits { margin: var(--space-2) 0 0; padding-left: var(--space-4); display: flex; flex-direction: column; gap: var(--space-1); }
+.plans__benefit { font-size: var(--text-sm); }
+.screen__title { margin: 0; font-size: var(--text-lg); font-weight: 700; }
+.screen__subtitle { margin: 0; color: var(--text-muted); font-size: var(--text-xs); }
+.screen__meta { margin: 0; color: var(--text-muted); font-size: var(--text-xs); }
+.row { display: flex; align-items: center; gap: var(--space-2); }
+.row--between { justify-content: space-between; }
+.muted { color: var(--text-muted); }
+.card .row + .row { margin-top: var(--space-2); }
+.card .screen__meta { margin-top: var(--space-2); }
+
+.success__check {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  animation: pop var(--dur-base) var(--ease);
+}
+@keyframes pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.stack { display: flex; flex-direction: column; gap: var(--space-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.surface--popup { width: 380px; height: 520px; display: flex; flex-direction: column; }
+.appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.appbar__brand { display: flex; align-items: center; gap: var(--space-2); }
+/* O logo traz o próprio quadrado preto e os cantos arredondados: aqui não
+   entra fundo nem raio, só o tamanho. */
+.appbar__icon { width: 24px; height: 24px; display: block; flex-shrink: 0; }
+.screens { flex: 1; overflow-y: auto; padding: var(--space-4); }
+.tabbar {
+  display: flex;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.tabbar__item {
+  flex: 1;
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: var(--space-3);
+  font: inherit;
+  cursor: pointer;
+}
+.tabbar__item:hover { background: var(--surface-2); color: var(--text); }
