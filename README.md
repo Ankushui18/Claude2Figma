@@ -147,6 +147,16 @@ again. If Figma does not list a local development plugin under another
 account, import the same manifest there once; that is a Figma plugin
 installation step, not a Claude2Figma login.
 
+> **What about extension-only "paste straight into Figma"?** Newer tools put
+> Figma's *private, undocumented* clipboard format on your system clipboard
+> so `⌘V` builds layers without a plugin. It works — and it is exactly as
+> fragile as it sounds (it breaks whenever Figma changes that format, and it
+> cannot do our import-time resize, wrapper pruning, or the standalone
+> **Copy Figma canvas** feature, which no extension can implement because
+> Figma's canvas is WebGL with no extension API). Claude2Figma keeps the
+> stable, official Plugin API path: one-time plugin install, then it is two
+> clicks per deck (paste → import).
+
 ## Install (2 minutes, no build step)
 
 Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile
