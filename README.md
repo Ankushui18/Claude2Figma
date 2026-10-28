@@ -178,12 +178,15 @@ test suite and icon rebuilds.)
 2. Click the Claude2Figma icon. It lists the canvas artboards it found; choose
    **Full canvas** to capture every screen, **Selected artboards** to tick
    multiple screens, **Single artboard** to choose exactly one, or **Whole
-   page** to ignore a mistaken artboard split. Capture → **Download
-   .deck.json** (recent captures also stay under the popup's **Decks** tab,
-   stored only in your browser). Only the inside of the checked artboards is
-   serialized in the first three modes.
-3. In Figma, open the Claude2Figma plugin and **drop the file** (or use
-   *Copy JSON* in the extension + paste for small decks). Once the file is
+   page** to ignore a mistaken artboard split, then **Capture**. Small decks
+   are **copied to the clipboard automatically** — there is nothing else to
+   click (the success screen still has **Download .deck.json**, and recent
+   captures stay under the popup's **Decks** tab, stored only in your
+   browser). Only the inside of the checked artboards is serialized in the
+   first three modes.
+3. In Figma, open the Claude2Figma plugin and press **Paste from
+   clipboard** — that's it (alternatively **drop the file**, or paste ⌘V/Ctrl+V
+   into the JSON box and the deck loads itself). Once the file is
    loaded, the plugin shows the **artboard sizes detected on the canvas**
    (e.g. `1440 × 900 · ×4`, `390 × 844 · ×2`) and two levels of size control:
    - **Global size for all artboards** — Original, Desktop 1920×1080 /
@@ -203,7 +206,9 @@ test suite and icon rebuilds.)
      `1440 × 900 → 1920 × 1200 · scale 133%` before you commit. The whole
      layer tree scales together — fonts, paddings, strokes, radii, shadows —
      not just the outer frame.
-4. Click **Import deck**. Slides land beside your existing work at their
+4. Click **Import deck**. Your global size/fit choice is **remembered for
+   next time**, so repeat imports are just paste → Import. Slides land
+   beside your existing work at their
    selected sizes, and the result screen lists the exact size created for
    every frame, along with any substituted fonts or failed images.
 

@@ -87,6 +87,16 @@ async function finishCapture(entry, result) {
   state.lastCapture = entry;
   state.captureInProgress = false;
   state.activeCaptureId = '';
+  // Lowest-step handoff: small decks land on the clipboard automatically, so
+  // the next action in Figma is a single "Paste from clipboard" click.
+  state.toast = '';
+  if (entry.bytes <= COPY_WARN_BYTES && typeof navigator !== 'undefined'
+      && navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(entry.json);
+      state.toast = 'Copied to clipboard — in Figma just press Paste from clipboard.';
+    } catch (_) { /* clipboard blocked: Download / Copy JSON still available */ }
+  }
   renderSuccess(); renderDecks();
   go('success');
 }
@@ -321,6 +331,15 @@ function renderHome() {
       ${unsupported || figmaOnly ? '' : probeError
         ? `${btn('Try inspecting again', 'home-retry-probe')}${btn('Capture this page anyway', 'home-capture', 'ghost')}`
         : btn('Capture this page anyway', 'home-capture')}
+      ${!figmaOnly && !unsupported && !probeError ? `
+      <div class="card">
+        <strong>Whole flow in 3 steps</strong>
+        <ol class="screen__meta">
+          <li>Open your design in Claude Design (or any web page).</li>
+          <li>Capture here — <em>Full canvas</em> is preselected; the JSON is copied for you.</li>
+          <li>In Figma: <em>Plugins → Claude2Figma</em> → <em>Paste from clipboard</em> → <em>Import</em>.</li>
+        </ol>
+      </div>` : ''}
       <p class="screen__meta">${figmaOnly
         ? 'No Claude2Figma account, connection, or matching Figma login is required. The .deck.json file is the transfer.'
         : 'Claude2Figma is optimized for Claude Design decks, but it can serialize almost any normal page into editable layers.'}</p>`;
@@ -390,9 +409,9 @@ function renderSuccess() {
     </div>
     ${captureWarnings(r)}
     ${c.historySaved === false ? '<div class="toast toast--warning">⚠️ This capture could not be kept in Decks history. Download the .deck.json now before closing Claude2Figma.</div>' : ''}
-    <p class="screen__subtitle"><strong>Next:</strong> download the file, then in Figma
-    run the <em>Claude2Figma</em> plugin and drop it in.</p>
     ${state.toast ? `<div class="toast toast--success">${escapeHtml(state.toast)}</div>` : ''}
+    <p class="screen__subtitle"><strong>Next:</strong> in Figma run the <em>Claude2Figma</em>
+    plugin and press <em>Paste from clipboard</em> — or download the file and drop it in.</p>
     ${btn('Download .deck.json', 'success-download')}
     ${btn('Copy JSON (paste into plugin)', 'success-copy', 'ghost')}
     ${btn('Capture another', 'success-another', 'ghost')}`;
@@ -449,7 +468,8 @@ function renderHowTo() {
         <li>Click the Claude2Figma icon and choose <em>Full canvas</em>,
         <em>Selected artboards</em>, <em>Single artboard</em>, or <em>Whole page</em>
         if a detected artboard is really just part of a larger screen.</li>
-        <li>Capture, then click <em>Download .deck.json</em>.</li>
+        <li>Capture — small decks are copied to your clipboard automatically
+        (or click <em>Download .deck.json</em>).</li>
       </ol>
     </div>
     <div class="card">

@@ -2196,6 +2196,25 @@ figma.ui.onmessage = async (msg) => {
     importState.cancelled = true;
     return;
   }
+  if (msg.type === 'get-import-prefs') {
+    // Remembered size choices: keeps repeat imports down to drop → Import.
+    let prefs = null;
+    try {
+      if (figma.clientStorage && figma.clientStorage.getAsync) {
+        prefs = await figma.clientStorage.getAsync('importPrefs');
+      }
+    } catch (_) { prefs = null; }
+    figma.ui.postMessage({ type: 'import-prefs', prefs: prefs || null });
+    return;
+  }
+  if (msg.type === 'save-import-prefs') {
+    try {
+      if (figma.clientStorage && figma.clientStorage.setAsync) {
+        await figma.clientStorage.setAsync('importPrefs', msg.prefs || null);
+      }
+    } catch (_) { /* storage unavailable — preferences simply not remembered */ }
+    return;
+  }
   if (msg.type === 'get-figma-canvas') {
     try {
       await listFigmaCanvas();

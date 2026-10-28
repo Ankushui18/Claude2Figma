@@ -33,6 +33,7 @@
     "webNavigation",
     "storage",
     "unlimitedStorage",
-    "downloads"
+    "downloads",
+    "clipboardWrite"
   ]
 }

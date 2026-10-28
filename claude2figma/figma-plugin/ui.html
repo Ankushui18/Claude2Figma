@@ -266,7 +266,10 @@
     <div id="file-error"></div>
     <p><strong style="color:var(--text)">…or paste JSON</strong> (use “Copy JSON” in the extension for small decks):</p>
     <textarea id="paste" placeholder='{"schema":"claude2figma", …}'></textarea>
-    <button id="paste-btn" class="ghost" style="margin-top:8px">Use pasted JSON</button>
+    <div class="row" style="gap:8px; margin-top:8px">
+      <button id="paste-clip-btn" class="ghost" style="flex:1; margin-top:0">Paste from clipboard</button>
+      <button id="paste-btn" class="ghost" style="flex:1; margin-top:0">Use pasted JSON</button>
+    </div>
 
     <div class="card">
       <h2>How it works</h2>
@@ -445,6 +448,7 @@
   let figmaExportData = null;
   let figmaExportChecked = new Set();
   let figmaExportInProgress = false;
+  let importPrefs = null; // last-used global size preset/fit (via code.js clientStorage)
 
   function show(id) {
     for (const s of document.querySelectorAll('section')) s.classList.remove('active');
@@ -469,6 +473,26 @@
     return n;
   }
   const fmtSize = (w, h) => Math.round(w) + ' × ' + Math.round(h);
+
+  // ---- remembered import size (lowest repeat steps) -----------------------
+  function requestImportPrefs() {
+    try { parent.postMessage({ pluginMessage: { type: 'get-import-prefs' } }, '*'); } catch (_) {}
+  }
+  function applyImportPrefs() {
+    if (!importPrefs) return;
+    const preset = importPrefs.preset;
+    if (preset && $('size-preset').querySelector('option[value="' + preset + '"]')) {
+      $('size-preset').value = preset;
+    }
+    if (importPrefs.fit && $('size-fit').querySelector('option[value="' + importPrefs.fit + '"]')) {
+      $('size-fit').value = importPrefs.fit;
+    }
+    if ($('size-preset').value === 'custom') {
+      if (Number(importPrefs.w) > 0) $('custom-w').value = importPrefs.w;
+      if (Number(importPrefs.h) > 0) $('custom-h').value = importPrefs.h;
+    }
+    updateSizePreview();
+  }
 
   function extractSlideSizes(parsed) {
     const root = parsed.root;
@@ -1045,6 +1069,7 @@
     $('size-preset').value = 'original';
     $('size-fit').value = 'fit';
     initializeSlideChoices();
+    applyImportPrefs();
     renderDetectedSizes();
     renderArtboardControls();
     updateSizePreview();
@@ -1108,6 +1133,49 @@
     }
   });
 
+  // Lowest-step paste: the deck loads the moment valid JSON lands in the box —
+  // no confirmation click needed after ⌘V / Ctrl+V.
+  $('paste').addEventListener('paste', () => {
+    setTimeout(() => {
+      const text = $('paste').value.trim();
+      if (!text || text[0] !== '{') return;
+      try {
+        acceptDeck(parseDeckText(text), new Blob([text]).size);
+        $('file-error').innerHTML = '';
+      } catch (e) {
+        $('file-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+      }
+    }, 0);
+  });
+
+  // One click straight from the clipboard (extension auto-copies on capture).
+  // If the browser/Figma blocks clipboard read, fall back to the paste hint.
+  $('paste-clip-btn').addEventListener('click', async () => {
+    let text = '';
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        text = await navigator.clipboard.readText();
+      }
+    } catch (_) { /* blocked → hint below */ }
+    text = (text || '').trim();
+    if (!text) {
+      const mod = /Mac|iPhone|iPad/i.test((navigator.platform || '') + navigator.userAgent)
+        ? '⌘V' : 'Ctrl+V';
+      $('file-error').innerHTML = '<div class="error">The clipboard is empty or paste is blocked here — click the box below and press ' + mod + '.</div>';
+      return;
+    }
+    $('paste').value = text;
+    try {
+      acceptDeck(parseDeckText(text), new Blob([text]).size);
+      $('file-error').innerHTML = '';
+    } catch (e) {
+      $('file-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+    }
+  });
+
+  // Ask code.js for the last-used import size as soon as the UI boots.
+  requestImportPrefs();
+
   $('back-btn').addEventListener('click', () => { payload = null; show('screen-file'); });
   $('again-btn').addEventListener('click', () => { payload = null; $('paste').value = ''; show('screen-file'); });
 
@@ -1124,6 +1192,15 @@
     $('counts').textContent = '';
     $('bar').style.width = '0%';
     show('screen-importing');
+    // Remember this import's size choices for next time (lowest repeat steps).
+    parent.postMessage(
+      { pluginMessage: { type: 'save-import-prefs', prefs: {
+        preset: $('size-preset').value,
+        fit: $('size-fit').value,
+        w: $('custom-w').value,
+        h: $('custom-h').value,
+      } } },
+      '*');
     parent.postMessage(
       { pluginMessage: { type: 'import', payload, options: selectedSizeOptions() } },
       '*');
@@ -1140,6 +1217,10 @@
     const msg = event.data && event.data.pluginMessage;
     if (!msg) return;
 
+    if (msg.type === 'import-prefs') {
+      importPrefs = msg.prefs || null;
+      if (importPrefs && $('screen-ready').classList.contains('active')) applyImportPrefs();
+    }
     if (msg.type === 'progress') {
       const pct = msg.total > 0 ? Math.round((msg.done / msg.total) * 100) : 0;
       $('bar').style.width = pct + '%';
