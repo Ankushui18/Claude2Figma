@@ -264,9 +264,9 @@ test suite and icon rebuilds.)
    │  ├─ manifest.json
    │  ├─ background.js      finds design frames; Claude/web capture + assembly
    │  ├─ inject.js          DOM → deck JSON serializer (the web capture engine)
-   │  ├─ popup.html/css/js  Claude/web capture UI + local deck history
+   │  ├─ popup.html/css/js  capture UI — warm Claude-style design language
    │  └─ icons/             generated from brand/logo.svg (npm run icons)
-   ├─ figma-plugin/         Figma plugin (import via manifest as-is)
+   ├─ figma-plugin/         Figma plugin — native Figma UI tokens (import as-is)
    │  ├─ manifest.json      networkAccess: none — structurally offline
    │  ├─ code.js            deck JSON ↔ Figma layers (import + native canvas copy)
    │  └─ ui.html            import/resize UI + Copy Figma canvas UI

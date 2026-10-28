@@ -3,102 +3,118 @@
 <head>
 <meta charset="utf-8" />
 <style>
+  /* Claude2Figma plugin UI — native Figma design language:
+     Figma color tokens, brand-blue actions, segmented tabs, 5/6/8px radii, Inter. */
   :root {
-    --accent: #8b5cf6; --accent-hover: #7c4dec;
-    --bg: var(--figma-color-bg, #1e1e1e);
-    --bg2: var(--figma-color-bg-secondary, #2a2a2a);
-    --border: var(--figma-color-border, #444);
-    --text: var(--figma-color-text, #f2f2f2);
-    --muted: var(--figma-color-text-secondary, #9a9a9a);
-    --danger: #e05555; --success: #22a06b;
+    --accent: var(--figma-color-bg-brand, #0d99ff);
+    --accent-hover: var(--figma-color-bg-brand-hover, #0b7ce0);
+    --accent-text: var(--figma-color-text-onbrand, #ffffff);
+    --bg: var(--figma-color-bg, #ffffff);
+    --bg2: var(--figma-color-bg-secondary, #f5f5f5);
+    --bg3: var(--figma-color-bg-tertiary, #eeeeee);
+    --border: var(--figma-color-border, #e6e6e6);
+    --text: var(--figma-color-text, #1e1e1e);
+    --muted: var(--figma-color-text-secondary, #6b6b6b);
+    --danger: var(--figma-color-border-danger, #f24822);
+    --danger-text: var(--figma-color-text-danger, #e94e31);
+    --success: var(--figma-color-border-success, #14ae5c);
+    --success-text: var(--figma-color-text-success, #0fa958);
+    --warn-text: var(--figma-color-text-warning, #9c6500);
+    --radius-control: 5px;
+    --radius-row: 6px;
+    --radius-card: 8px;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; padding: 16px;
     font-family: Inter, -apple-system, "Segoe UI", sans-serif;
     font-size: 12px; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased;
   }
-  h1 { font-size: 15px; margin: 0; }
-  .version { color: var(--muted); font-size: 11px; font-weight: 500; margin-left: 6px; }
-  h2 { font-size: 13px; margin: 0 0 6px; }
-  p { color: var(--muted); line-height: 1.6; margin: 6px 0; }
-  label.field { display: block; color: var(--muted); font-weight: 600; margin: 10px 0 4px; }
+  strong { font-weight: 600; }
+  h1 { font-size: 13px; font-weight: 600; margin: 0; letter-spacing: -0.005em; }
+  .version { color: var(--muted); font-size: 11px; font-weight: 400; margin-left: 6px; }
+  h2 { font-size: 12px; font-weight: 600; margin: 0 0 6px; }
+  p { color: var(--muted); line-height: 1.55; margin: 6px 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0 4px;
+  }
+  label.field {
+    display: block; color: var(--muted); font-size: 11px; font-weight: 600;
+    margin: 12px 0 5px;
+  }
   section { display: none; }
   section.active { display: block; }
+
+  /* File drop — Figma dashed import area */
   .drop {
-    border: 1.5px dashed var(--border); border-radius: 12px;
+    border: 1.5px dashed var(--border); border-radius: var(--radius-card);
     padding: 22px 14px; text-align: center; cursor: pointer;
-    transition: border-color .15s, background .15s; margin: 12px 0;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    margin: 12px 0; background: var(--bg2);
   }
-  .drop:hover, .drop.over { border-color: var(--accent); background: var(--bg2); }
+  .drop:hover, .drop.over {
+    border-color: var(--accent); background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
   .drop .icon { font-size: 26px; }
-  .drop strong { display: block; margin-top: 6px; font-size: 13px; }
+  .drop strong { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; }
+
+  /* Inputs — Figma field style */
   textarea, select, input[type="number"] {
-    width: 100%;
-    background: var(--bg); color: var(--text);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 8px; font: inherit;
+    width: 100%; background-color: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius-control);
+    padding: 7px 8px; font: inherit; font-size: 12px;
+    transition: border-color .12s, box-shadow .12s;
   }
-  textarea { height: 74px; resize: vertical; font-family: ui-monospace, monospace; font-size: 11px; background: var(--bg2); }
-  textarea:focus, select:focus, input[type="number"]:focus { outline: none; border-color: var(--accent); }
+  textarea {
+    height: 74px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px; background-color: var(--bg2);
+  }
+  textarea:focus, select:focus, input[type="number"]:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent);
+  }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23888888' d='M4.2 6.3a.75.75 0 0 1 1.06 0L8 9.04l2.74-2.74a.75.75 0 1 1 1.06 1.06l-3.27 3.27a.75.75 0 0 1-1.06 0L4.2 7.36a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 6px center;
+    padding-right: 26px;
+  }
   select:disabled { opacity: .45; }
-  .size-custom { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-  .size-custom input { flex: 1; }
-  .size-custom span { color: var(--muted); }
-  .size-detected { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
-  .size-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .size-quick button {
-    width: auto; padding: 6px 9px; font-size: 11px;
-    background: var(--bg); color: var(--text); border-color: var(--border);
+  input[type="radio"], input[type="checkbox"] { accent-color: var(--accent); }
+  input[type="radio"]:focus-visible, input[type="checkbox"]:focus-visible {
+    outline: 2px solid rgba(13, 153, 255, .5); outline-offset: 1px;
   }
-  .size-quick button:hover:not(:disabled) { background: var(--bg2); }
-  .size-quick button.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .artboard-list {
-    display: flex; flex-direction: column; gap: 8px;
-    max-height: 340px; overflow-y: auto; margin-top: 8px; padding-right: 2px;
-  }
-  .artboard-row {
-    border: 1px solid var(--border); background: var(--bg);
-    border-radius: 10px; padding: 9px;
-  }
-  .artboard-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .artboard-head strong { font-size: 12px; overflow-wrap: anywhere; }
-  .artboard-head span { color: var(--text); font-size: 11px; text-align: right; white-space: nowrap; }
-  .artboard-meta { color: var(--muted); font-size: 11px; line-height: 1.5; margin-top: 3px; }
-  .artboard-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
-  .artboard-controls select { padding: 6px; font-size: 11px; }
-  .artboard-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
-  .artboard-actions button {
-    width: auto; padding: 5px 8px; font-size: 11px;
-    background: transparent; color: var(--text); border-color: var(--border);
-  }
-  .artboard-actions span { color: var(--muted); margin-left: auto; font-size: 11px; }
-  .artboard-check {
-    display: flex; align-items: center; gap: 7px; margin-top: 8px;
-    color: var(--text); font-weight: 600; cursor: pointer;
-  }
-  .artboard-check input { accent-color: var(--accent); }
-  .artboard-row.is-disabled { opacity: .58; }
-  .slide-size-label { color: var(--muted); font-weight: 600; margin-top: 9px; }
+
+  /* Buttons — Figma primary/secondary */
   button {
-    appearance: none; border: 1px solid transparent; border-radius: 8px;
-    padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer;
-    background: var(--accent); color: #fff; width: 100%;
+    appearance: none; border: 1px solid transparent; border-radius: var(--radius-control);
+    padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
+    background: var(--accent); color: var(--accent-text); width: 100%;
+    transition: background .12s, border-color .12s;
   }
   button:hover:not(:disabled) { background: var(--accent-hover); }
   button:disabled { opacity: .45; cursor: default; }
-  button.ghost { background: transparent; color: var(--text); border-color: var(--border); margin-top: 8px; }
-  button.ghost:hover:not(:disabled) { background: var(--bg2); }
+  button:focus-visible { outline: 2px solid rgba(13, 153, 255, .5); outline-offset: 1px; }
+  button.ghost {
+    background: var(--bg2); color: var(--text); border-color: var(--border);
+    margin-top: 8px;
+  }
+  button.ghost:hover:not(:disabled) { background: var(--bg3); }
+
   .card {
     background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 12px; padding: 12px 14px; margin: 12px 0;
+    border-radius: var(--radius-card); padding: 12px 14px; margin: 12px 0;
   }
   .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .pill {
     background: var(--bg); border: 1px solid var(--border); color: var(--muted);
     border-radius: 999px; padding: 2px 8px; font-size: 11px; white-space: nowrap;
   }
-  .progress { height: 6px; background: var(--bg2); border-radius: 999px; overflow: hidden; margin: 12px 0 4px; }
+
+  .progress { height: 6px; background: var(--bg3); border-radius: 999px; overflow: hidden; margin: 12px 0 4px; }
   .progress > div { height: 100%; width: 0%; background: var(--accent); transition: width .2s; }
   .spinner {
     display: inline-block; width: 16px; height: 16px; vertical-align: -3px;
@@ -106,9 +122,19 @@
     border-radius: 50%; animation: spin .7s linear infinite; margin-right: 6px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error { border: 1px solid var(--danger); color: #ffb4b4; border-radius: 10px; padding: 10px 12px; line-height: 1.6; margin: 12px 0; }
-  .ok { border: 1px solid var(--success); color: #8fe3bd; border-radius: 10px; padding: 10px 12px; line-height: 1.6; margin: 12px 0; }
-  .warn { color: #f0c36d; }
+
+  /* Status messages — Figma semantic colors */
+  .error {
+    border: 1px solid var(--danger); color: var(--danger-text);
+    border-radius: var(--radius-row); padding: 9px 11px; line-height: 1.6; margin: 12px 0;
+    background: rgba(242, 72, 34, 0.06);
+  }
+  .ok {
+    border: 1px solid var(--success); color: var(--success-text);
+    border-radius: var(--radius-row); padding: 9px 11px; line-height: 1.6; margin: 12px 0;
+    background: rgba(20, 174, 92, 0.07);
+  }
+  .warn { color: var(--warn-text); }
   ol { color: var(--muted); line-height: 1.7; padding-left: 18px; margin: 6px 0; }
   .check {
     width: 42px; height: 42px; border-radius: 50%; background: var(--success);
@@ -116,26 +142,99 @@
     font-size: 20px; font-weight: 700; margin: 10px 0;
   }
   #size-preview { white-space: pre-line; }
-  .mode-tabs { display: flex; gap: 6px; margin: 10px 0 12px; }
-  .mode-tabs button {
-    flex: 1; width: auto; padding: 7px 8px;
-    background: transparent; color: var(--text); border-color: var(--border);
+
+  /* Mode switch — Figma segmented control */
+  .mode-tabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-card); margin: 12px 0;
   }
-  .mode-tabs button.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .mode-tabs button {
+    flex: initial; width: auto; padding: 6px 8px;
+    font-size: 11px; font-weight: 500;
+    background: transparent; color: var(--muted);
+    border: 1px solid transparent; border-radius: var(--radius-row);
+  }
+  .mode-tabs button:hover:not(.is-active):not(:disabled) { background: var(--bg3); color: var(--text); }
+  .mode-tabs button.is-active {
+    background: var(--bg); border-color: var(--border); color: var(--text);
+    font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Size shortcuts — Figma chips */
+  .size-custom { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .size-custom input { flex: 1; }
+  .size-custom span { color: var(--muted); }
+  .size-detected { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+  .size-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .size-quick button {
+    width: auto; padding: 5px 9px; font-size: 11px; font-weight: 500;
+    background: var(--bg); color: var(--text); border-color: var(--border);
+  }
+  .size-quick button:hover:not(:disabled) { background: var(--bg3); }
+  .size-quick button.is-active { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+
+  /* Frame lists — Figma selectable rows */
+  .artboard-list {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 340px; overflow-y: auto; margin-top: 8px; padding-right: 2px;
+  }
+  .artboard-row {
+    border: 1px solid var(--border); background: var(--bg);
+    border-radius: var(--radius-row); padding: 9px 10px;
+    transition: border-color .12s, background .12s;
+  }
+  .artboard-row:has(.artboard-check input:checked) {
+    border-color: var(--accent); background: rgba(13, 153, 255, 0.05);
+  }
+  .artboard-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .artboard-head strong { font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+  .artboard-head span { color: var(--text); font-size: 11px; text-align: right; white-space: nowrap; }
+  .artboard-meta { color: var(--muted); font-size: 11px; line-height: 1.5; margin-top: 3px; }
+  .artboard-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .artboard-controls select { padding: 5px 6px 5px 7px; font-size: 11px; }
+  .artboard-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .artboard-actions button {
+    width: auto; padding: 4px 8px; font-size: 11px; font-weight: 500;
+    background: var(--bg2); color: var(--text); border-color: var(--border);
+  }
+  .artboard-actions button:hover:not(:disabled) { background: var(--bg3); }
+  .artboard-actions span { color: var(--muted); margin-left: auto; font-size: 11px; }
+  .artboard-check {
+    display: flex; align-items: center; gap: 7px; margin-top: 8px;
+    color: var(--text); font-weight: 600; cursor: pointer;
+  }
+  .artboard-row.is-disabled { opacity: .58; }
+  .slide-size-label { color: var(--muted); font-weight: 600; margin-top: 9px; font-size: 11px; }
+
+  /* Export scope — Figma radio rows */
   .export-scope { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
   .export-option, .export-frame-choice {
     display: flex; gap: 8px; align-items: flex-start;
-    border: 1px solid var(--border); border-radius: 10px;
-    background: var(--bg); padding: 8px; cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius-row);
+    background: var(--bg); padding: 8px 9px; cursor: pointer;
+    transition: border-color .12s, background .12s;
   }
-  .export-option input, .export-frame-choice input { margin-top: 2px; accent-color: var(--accent); flex: 0 0 auto; }
+  .export-option:hover, .export-frame-choice:hover { background: var(--bg2); }
+  .export-option:has(input:checked), .export-frame-choice:has(input:checked) {
+    border-color: var(--accent); background: rgba(13, 153, 255, 0.05);
+  }
+  .export-option input, .export-frame-choice input { margin-top: 2px; flex: 0 0 auto; }
   .export-option span, .export-frame-choice span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .export-option strong, .export-frame-choice strong { font-weight: 600; }
   .export-option small, .export-frame-choice small { color: var(--muted); line-height: 1.45; }
   .export-option.is-disabled { opacity: .55; cursor: default; }
   .export-frame-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; margin-top: 8px; }
-  .export-page-title { color: var(--text); font-weight: 700; margin: 6px 0 2px; }
+  .export-page-title { color: var(--text); font-weight: 600; margin: 6px 0 2px; font-size: 11px; }
+
   h1.brand { display: flex; align-items: center; gap: 8px; }
-  h1.brand .brand__icon { width: 20px; height: 20px; display: block; flex-shrink: 0; }
+  h1.brand .brand__icon { width: 20px; height: 20px; display: block; flex-shrink: 0; border-radius: 5px; }
+
+  /* Figma-style thin scrollbars */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgba(127, 127, 127, 0.45); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(127, 127, 127, 0.7); background-clip: content-box; }
+  ::-webkit-scrollbar-track { background: transparent; }
 </style>
 </head>
 <body>

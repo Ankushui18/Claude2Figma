@@ -361,7 +361,7 @@ function captureWarnings(report) {
       + 'Scroll/zoom the Claude canvas so every screen is visible once, then capture again.');
   }
   if (!warnings.length) return '';
-  return warnings.map((w) => `<div class="toast" style="border-color:var(--warning);color:#f0d9a8">⚠️ ${escapeHtml(w)}</div>`).join('');
+  return warnings.map((w) => `<div class="toast toast--warning">⚠️ ${escapeHtml(w)}</div>`).join('');
 }
 
 function renderSuccess() {
@@ -389,7 +389,7 @@ function renderSuccess() {
       ${statsLine}
     </div>
     ${captureWarnings(r)}
-    ${c.historySaved === false ? '<div class="toast" style="border-color:var(--warning);color:#f0d9a8">⚠️ This capture could not be kept in Decks history. Download the .deck.json now before closing Claude2Figma.</div>' : ''}
+    ${c.historySaved === false ? '<div class="toast toast--warning">⚠️ This capture could not be kept in Decks history. Download the .deck.json now before closing Claude2Figma.</div>' : ''}
     <p class="screen__subtitle"><strong>Next:</strong> download the file, then in Figma
     run the <em>Claude2Figma</em> plugin and drop it in.</p>
     ${state.toast ? `<div class="toast toast--success">${escapeHtml(state.toast)}</div>` : ''}
