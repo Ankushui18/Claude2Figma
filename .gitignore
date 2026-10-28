@@ -1,8 +1,9 @@
 # Dependencies (test-only; the extension & plugin need no npm)
 node_modules/
 
-# Packaged stores uploads
+# Packaged store uploads (release assets live on the GitHub release page)
 *.zip
+!releases/*.zip
 
 # Logs & OS junk
 *.log
