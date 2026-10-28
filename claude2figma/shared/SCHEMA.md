@@ -6,6 +6,10 @@ Claude Design decks) into this format, or the Figma plugin serializes the
 current Figma canvas from native layers into the same format. The user
 downloads/copies the JSON, and the plugin rebuilds it as native Figma layers.
 
+> **Schema id:** new exports always write `"schema": "claude2figma"`.
+> Files captured before the project rename carry `"schema": "deckbridge"` —
+> importers accept **both**, so existing captures keep working unchanged.
+
 ## Envelope
 
 ```jsonc

@@ -151,13 +151,13 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
 
 1. Open `chrome://extensions`
 2. Turn on **Developer mode** (top right)
-3. **Load unpacked** → select the **`extension/`** folder from this project
-4. Pin the violet Claude2Figma icon
+3. **Load unpacked** → select the **`claude2figma/extension/`** folder
+4. Pin the Claude2Figma icon
 
 ### 2 · Figma plugin
 
 1. In Figma desktop (or figma.com): menu **Plugins → Development → Import plugin from manifest…**
-2. Select **`figma-plugin/manifest.json`**
+2. Select **`claude2figma/figma-plugin/manifest.json`**
 3. Run it from **Plugins → Development → Claude2Figma**
 
 > The manifest `id` is a placeholder for local development — that's fine for
@@ -225,37 +225,46 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
 
 ## Test without Claude
 
-- **Plugin only:** import `sample/sample-deck.deck.json` — a 2-slide deck
-  exercising text runs, gradients, shadows, auto-layout, a raster image and an SVG.
-- **Full loop:** serve or open `test/test-page.html` in Chrome, capture it with
+- **Plugin only:** import `claude2figma/sample/sample-deck.deck.json` — a
+  2-slide deck exercising text runs, gradients, shadows, auto-layout, a raster
+  image and an SVG.
+- **Full loop:** serve or open `claude2figma/test/test-page.html` in Chrome,
+  capture it with
   the extension ("Capture this page anyway"), import the result in Figma.
-- **Headless tests:** run `test/prune-test.js`, `test/color-test.js`,
-  `test/mock-figma-test.js`, `test/size-test.js`, `test/ui-size-test.js`,
-  `test/popup-scope-test.js`, `test/popup-figma-test.js`,
-  `test/background-frame-test.js`, `test/figma-no-bridge-test.js`,
-  `test/figma-export-test.js`, `test/ui-figma-export-test.js`, and
-  `test/serializer-test.js` to verify clean
-  layer trees, text Auto Layout sizing, selected/full capture, exact W×H UI,
-  shadow/iframe piercing, standalone native Figma export, the absence of a
-  Chrome↔Figma bridge, and the Figma builder.
+- **Headless tests:** run the whole suite at once:
+
+  ```sh
+  node claude2figma/test/run-all.js
+  ```
+
+  It covers layer-tree pruning, text Auto Layout sizing, selected/full
+  capture, exact W×H UI, shadow/iframe piercing, standalone native Figma
+  export, the absence of a Chrome↔Figma bridge, and the Figma builder.
+  Five of the tests (popup & plugin-UI) additionally need jsdom — install it
+  with `npm i --no-save jsdom`; without it the runner simply reports them as
+  skipped. Every test can still be run individually, e.g.
+  `node claude2figma/test/prune-test.js`.
 
 ## Project layout
 
 ```
-claude2figma/
-├─ extension/            Chrome MV3 extension (load unpacked as-is)
-│  ├─ manifest.json
-│  ├─ background.js      finds design frames; Claude/web capture + assembly
-│  ├─ inject.js          DOM → deck JSON serializer (the web capture engine)
-│  ├─ popup.html/css/js  Claude/web capture UI + local deck history
-│  └─ icons/
-├─ figma-plugin/         Figma plugin (import via manifest as-is)
-│  ├─ manifest.json      networkAccess: none — structurally offline
-│  ├─ code.js            deck JSON ↔ Figma layers (import + native canvas copy)
-│  └─ ui.html            import/resize UI + Copy Figma canvas UI
-├─ shared/SCHEMA.md      the .deck.json format both sides speak
-├─ sample/               ready-to-import sample deck
-└─ test/                 test page + headless plugin test
+.
+├─ README.md             you are here
+├─ LICENSE               MIT
+└─ claude2figma/
+   ├─ extension/            Chrome MV3 extension (load unpacked as-is)
+   │  ├─ manifest.json
+   │  ├─ background.js      finds design frames; Claude/web capture + assembly
+   │  ├─ inject.js          DOM → deck JSON serializer (the web capture engine)
+   │  ├─ popup.html/css/js  Claude/web capture UI + local deck history
+   │  └─ icons/
+   ├─ figma-plugin/         Figma plugin (import via manifest as-is)
+   │  ├─ manifest.json      networkAccess: none — structurally offline
+   │  ├─ code.js            deck JSON ↔ Figma layers (import + native canvas copy)
+   │  └─ ui.html            import/resize UI + Copy Figma canvas UI
+   ├─ shared/SCHEMA.md      the .deck.json format both sides speak
+   ├─ sample/               ready-to-import sample deck
+   └─ test/                 test page + headless tests + run-all runner
 ```
 
 ## Known limitations (v1)
@@ -288,12 +297,17 @@ mapping, `border-image`/mask approximations, and multiple box-shadow ordering.
 
 ## Publishing (optional)
 
-- **Chrome Web Store:** zip the *contents* of `extension/`
-  (`claude2figma-extension.zip` in this folder is already packed that way).
+- **Chrome Web Store:** zip the *contents* of `claude2figma/extension/`:
+
+  ```sh
+  (cd claude2figma/extension && zip -r ../../claude2figma-extension.zip .)
+  ```
+
   Fill in the privacy section honestly: *no data collected, nothing sold* —
   the code backs that up.
 - **Figma Community:** submit via a Figma org with the contents of
-  `figma-plugin/`; replace the placeholder manifest id with the assigned one.
+  `claude2figma/figma-plugin/`; replace the placeholder manifest id with the
+  assigned one.
 
 ## A note on originality
 
