@@ -7,7 +7,15 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const { JSDOM } = require(require('path').join('/tmp/dbtest', 'node_modules', 'jsdom'));
+
+let JSDOM;
+for (const candidate of ['jsdom', '/tmp/dbtest/node_modules/jsdom']) {
+  try { ({ JSDOM } = require(candidate)); break; } catch (_) { /* next */ }
+}
+if (!JSDOM) {
+  console.log('⏭️ ui-figma-export-test skipped (jsdom not installed — run: npm i --no-save jsdom)');
+  process.exit(0);
+}
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'figma-plugin', 'ui.html'), 'utf8');
 const sample = fs.readFileSync(path.join(__dirname, '..', 'sample', 'sample-deck.deck.json'), 'utf8');
