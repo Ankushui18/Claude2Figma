@@ -13,7 +13,7 @@ for (const candidate of ['jsdom', '/tmp/dbtest/node_modules/jsdom']) {
   try { ({ JSDOM } = require(candidate)); break; } catch (_) { /* next */ }
 }
 if (!JSDOM) {
-  console.log('⏭️ ui-figma-export-test skipped (jsdom not installed — run: npm i --no-save jsdom)');
+  console.log('⏭️ ui-figma-export-test skipped (jsdom not installed — run: npm install)');
   process.exit(0);
 }
 

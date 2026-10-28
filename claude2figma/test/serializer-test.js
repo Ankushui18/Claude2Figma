@@ -1,4 +1,4 @@
-// Serializer test (needs jsdom:  npm i --no-save jsdom  inside test/ or repo root)
+// Serializer test (needs jsdom: run `npm install` once at the repo root)
 // Reproduces the "blank artboards" bug: a Claude-style canvas whose screens
 // live inside OPEN SHADOW ROOTS of custom artboard elements. The serializer
 // must pierce the shadow trees, detect both artboards, and capture the text.
@@ -14,7 +14,7 @@ for (const candidate of ['jsdom', '/tmp/dbtest/node_modules/jsdom']) {
   try { ({ JSDOM } = require(candidate)); break; } catch (_) { /* next */ }
 }
 if (!JSDOM) {
-  console.log('⏭️  serializer-test skipped (jsdom not installed — run: npm i --no-save jsdom)');
+  console.log('⏭️  serializer-test skipped (jsdom not installed — run: npm install)');
   process.exit(0);
 }
 

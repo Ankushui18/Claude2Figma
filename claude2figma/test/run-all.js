@@ -2,7 +2,7 @@
 // Run every headless test in this folder:
 //   node test/run-all.js        (or: node claude2figma/test/run-all.js)
 // Tests that need jsdom report themselves as skipped when it is not
-// installed (npm i --no-save jsdom). Exit code 1 if anything fails.
+// installed (npm install). Exit code 1 if anything fails.
 'use strict';
 
 const { spawnSync } = require('child_process');
@@ -26,7 +26,7 @@ for (const name of tests) {
     console.log(`\n──── ${name} ────`);
     console.log(out.trim());
   } else if (skipped) {
-    results.push([name, 'SKIP', 'jsdom not installed (npm i --no-save jsdom)']);
+    results.push([name, 'SKIP', 'jsdom not installed (npm install)']);
   } else {
     results.push([name, 'PASS', '']);
   }
