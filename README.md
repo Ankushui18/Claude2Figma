@@ -145,7 +145,9 @@ installation step, not a Claude2Figma login.
 
 ## Install (2 minutes, no build step)
 
-Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
+Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile
+to run either part. (`npm install` exists only for the optional headless
+test suite and icon rebuilds.)
 
 ### 1 · Chrome extension
 
@@ -240,8 +242,9 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile.
   It covers layer-tree pruning, text Auto Layout sizing, selected/full
   capture, exact W×H UI, shadow/iframe piercing, standalone native Figma
   export, the absence of a Chrome↔Figma bridge, and the Figma builder.
-  Five of the tests (popup & plugin-UI) additionally need jsdom — install it
-  with `npm i --no-save jsdom`; without it the runner simply reports them as
+  Five of the tests (popup & plugin-UI) additionally need jsdom — run
+  `npm install` once (dev dependencies only, nothing to do with the
+  extension/plugin); without it the runner simply reports them as
   skipped. Every test can still be run individually, e.g.
   `node claude2figma/test/prune-test.js`.
 
