@@ -4,6 +4,8 @@
 
 # Claude2Figma — Claude Design & Figma canvas copy → Figma, with no paid anything
 
+[![tests](https://github.com/Ankushui18/Claude2Figma/actions/workflows/test.yml/badge.svg)](https://github.com/Ankushui18/Claude2Figma/actions/workflows/test.yml)
+
 A **100% free, local-only** alternative to paid "Claude Design to Figma"
 importers. It does the same job — capture a deck in Claude Design and rebuild
 it in Figma as **native, editable layers** — with everything the paid tools
@@ -12,7 +14,7 @@ gate behind a subscription **removed**. The Figma plugin can also copy a
 `.deck.json` format, then import that copy into another Figma page/file at a
 different artboard size. The Chrome extension never connects to Figma:
 
-**Current release: v1.7.0.**
+**Current release: v1.8.0.**
 
 | Paid original | Claude2Figma |
 |---|---|

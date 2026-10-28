@@ -1,6 +1,6 @@
 {
   "name": "claude2figma",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Free, local-only Claude Design & Figma canvas → Figma importer: Chrome extension + Figma plugin, one .deck.json file, no account, no server.",
   "private": true,
   "license": "MIT",
