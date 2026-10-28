@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  /* Claude2Figma plugin UI — native Figma design language:
+     Figma color tokens, brand-blue actions, segmented tabs, 5/6/8px radii, Inter. */
+  :root {
+    --accent: var(--figma-color-bg-brand, #0d99ff);
+    --accent-hover: var(--figma-color-bg-brand-hover, #0b7ce0);
+    --accent-text: var(--figma-color-text-onbrand, #ffffff);
+    --bg: var(--figma-color-bg, #ffffff);
+    --bg2: var(--figma-color-bg-secondary, #f5f5f5);
+    --bg3: var(--figma-color-bg-tertiary, #eeeeee);
+    --border: var(--figma-color-border, #e6e6e6);
+    --text: var(--figma-color-text, #1e1e1e);
+    --muted: var(--figma-color-text-secondary, #6b6b6b);
+    --danger: var(--figma-color-border-danger, #f24822);
+    --danger-text: var(--figma-color-text-danger, #e94e31);
+    --success: var(--figma-color-border-success, #14ae5c);
+    --success-text: var(--figma-color-text-success, #0fa958);
+    --warn-text: var(--figma-color-text-warning, #9c6500);
+    --radius-control: 5px;
+    --radius-row: 6px;
+    --radius-card: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px;
+    font-family: Inter, -apple-system, "Segoe UI", sans-serif;
+    font-size: 12px; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  strong { font-weight: 600; }
+  h1 { font-size: 13px; font-weight: 600; margin: 0; letter-spacing: -0.005em; }
+  .version { color: var(--muted); font-size: 11px; font-weight: 400; margin-left: 6px; }
+  h2 { font-size: 12px; font-weight: 600; margin: 0 0 6px; }
+  p { color: var(--muted); line-height: 1.55; margin: 6px 0; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0 4px;
+  }
+  label.field {
+    display: block; color: var(--muted); font-size: 11px; font-weight: 600;
+    margin: 12px 0 5px;
+  }
+  section { display: none; }
+  section.active { display: block; }
+
+  /* File drop — Figma dashed import area */
+  .drop {
+    border: 1.5px dashed var(--border); border-radius: var(--radius-card);
+    padding: 22px 14px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    margin: 12px 0; background: var(--bg2);
+  }
+  .drop:hover, .drop.over {
+    border-color: var(--accent); background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+  .drop .icon { font-size: 26px; }
+  .drop strong { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; }
+
+  /* Inputs — Figma field style */
+  textarea, select, input[type="number"] {
+    width: 100%; background-color: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius-control);
+    padding: 7px 8px; font: inherit; font-size: 12px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  textarea {
+    height: 74px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px; background-color: var(--bg2);
+  }
+  textarea:focus, select:focus, input[type="number"]:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent);
+  }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23888888' d='M4.2 6.3a.75.75 0 0 1 1.06 0L8 9.04l2.74-2.74a.75.75 0 1 1 1.06 1.06l-3.27 3.27a.75.75 0 0 1-1.06 0L4.2 7.36a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 6px center;
+    padding-right: 26px;
+  }
+  select:disabled { opacity: .45; }
+  input[type="radio"], input[type="checkbox"] { accent-color: var(--accent); }
+  input[type="radio"]:focus-visible, input[type="checkbox"]:focus-visible {
+    outline: 2px solid rgba(13, 153, 255, .5); outline-offset: 1px;
+  }
+
+  /* Buttons — Figma primary/secondary */
+  button {
+    appearance: none; border: 1px solid transparent; border-radius: var(--radius-control);
+    padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
+    background: var(--accent); color: var(--accent-text); width: 100%;
+    transition: background .12s, border-color .12s;
+  }
+  button:hover:not(:disabled) { background: var(--accent-hover); }
+  button:disabled { opacity: .45; cursor: default; }
+  button:focus-visible { outline: 2px solid rgba(13, 153, 255, .5); outline-offset: 1px; }
+  button.ghost {
+    background: var(--bg2); color: var(--text); border-color: var(--border);
+    margin-top: 8px;
+  }
+  button.ghost:hover:not(:disabled) { background: var(--bg3); }
+
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-card); padding: 12px 14px; margin: 12px 0;
+  }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .pill {
+    background: var(--bg); border: 1px solid var(--border); color: var(--muted);
+    border-radius: 999px; padding: 2px 8px; font-size: 11px; white-space: nowrap;
+  }
+
+  .progress { height: 6px; background: var(--bg3); border-radius: 999px; overflow: hidden; margin: 12px 0 4px; }
+  .progress > div { height: 100%; width: 0%; background: var(--accent); transition: width .2s; }
+  .spinner {
+    display: inline-block; width: 16px; height: 16px; vertical-align: -3px;
+    border: 2px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .7s linear infinite; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Status messages — Figma semantic colors */
+  .error {
+    border: 1px solid var(--danger); color: var(--danger-text);
+    border-radius: var(--radius-row); padding: 9px 11px; line-height: 1.6; margin: 12px 0;
+    background: rgba(242, 72, 34, 0.06);
+  }
+  .ok {
+    border: 1px solid var(--success); color: var(--success-text);
+    border-radius: var(--radius-row); padding: 9px 11px; line-height: 1.6; margin: 12px 0;
+    background: rgba(20, 174, 92, 0.07);
+  }
+  .warn { color: var(--warn-text); }
+  ol { color: var(--muted); line-height: 1.7; padding-left: 18px; margin: 6px 0; }
+  .check {
+    width: 42px; height: 42px; border-radius: 50%; background: var(--success);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; margin: 10px 0;
+  }
+  #size-preview { white-space: pre-line; }
+
+  /* Mode switch — Figma segmented control */
+  .mode-tabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-card); margin: 12px 0;
+  }
+  .mode-tabs button {
+    flex: initial; width: auto; padding: 6px 8px;
+    font-size: 11px; font-weight: 500;
+    background: transparent; color: var(--muted);
+    border: 1px solid transparent; border-radius: var(--radius-row);
+  }
+  .mode-tabs button:hover:not(.is-active):not(:disabled) { background: var(--bg3); color: var(--text); }
+  .mode-tabs button.is-active {
+    background: var(--bg); border-color: var(--border); color: var(--text);
+    font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Size shortcuts — Figma chips */
+  .size-custom { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .size-custom input { flex: 1; }
+  .size-custom span { color: var(--muted); }
+  .size-detected { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+  .size-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .size-quick button {
+    width: auto; padding: 5px 9px; font-size: 11px; font-weight: 500;
+    background: var(--bg); color: var(--text); border-color: var(--border);
+  }
+  .size-quick button:hover:not(:disabled) { background: var(--bg3); }
+  .size-quick button.is-active { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+
+  /* Frame lists — Figma selectable rows */
+  .artboard-list {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 340px; overflow-y: auto; margin-top: 8px; padding-right: 2px;
+  }
+  .artboard-row {
+    border: 1px solid var(--border); background: var(--bg);
+    border-radius: var(--radius-row); padding: 9px 10px;
+    transition: border-color .12s, background .12s;
+  }
+  .artboard-row:has(.artboard-check input:checked) {
+    border-color: var(--accent); background: rgba(13, 153, 255, 0.05);
+  }
+  .artboard-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .artboard-head strong { font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+  .artboard-head span { color: var(--text); font-size: 11px; text-align: right; white-space: nowrap; }
+  .artboard-meta { color: var(--muted); font-size: 11px; line-height: 1.5; margin-top: 3px; }
+  .artboard-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .artboard-controls select { padding: 5px 6px 5px 7px; font-size: 11px; }
+  .artboard-actions { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .artboard-actions button {
+    width: auto; padding: 4px 8px; font-size: 11px; font-weight: 500;
+    background: var(--bg2); color: var(--text); border-color: var(--border);
+  }
+  .artboard-actions button:hover:not(:disabled) { background: var(--bg3); }
+  .artboard-actions span { color: var(--muted); margin-left: auto; font-size: 11px; }
+  .artboard-check {
+    display: flex; align-items: center; gap: 7px; margin-top: 8px;
+    color: var(--text); font-weight: 600; cursor: pointer;
+  }
+  .artboard-row.is-disabled { opacity: .58; }
+  .slide-size-label { color: var(--muted); font-weight: 600; margin-top: 9px; font-size: 11px; }
+
+  /* Export scope — Figma radio rows */
+  .export-scope { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .export-option, .export-frame-choice {
+    display: flex; gap: 8px; align-items: flex-start;
+    border: 1px solid var(--border); border-radius: var(--radius-row);
+    background: var(--bg); padding: 8px 9px; cursor: pointer;
+    transition: border-color .12s, background .12s;
+  }
+  .export-option:hover, .export-frame-choice:hover { background: var(--bg2); }
+  .export-option:has(input:checked), .export-frame-choice:has(input:checked) {
+    border-color: var(--accent); background: rgba(13, 153, 255, 0.05);
+  }
+  .export-option input, .export-frame-choice input { margin-top: 2px; flex: 0 0 auto; }
+  .export-option span, .export-frame-choice span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .export-option strong, .export-frame-choice strong { font-weight: 600; }
+  .export-option small, .export-frame-choice small { color: var(--muted); line-height: 1.45; }
+  .export-option.is-disabled { opacity: .55; cursor: default; }
+  .export-frame-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; margin-top: 8px; }
+  .export-page-title { color: var(--text); font-weight: 600; margin: 6px 0 2px; font-size: 11px; }
+
+  h1.brand { display: flex; align-items: center; gap: 8px; }
+  h1.brand .brand__icon { width: 20px; height: 20px; display: block; flex-shrink: 0; border-radius: 5px; }
+
+  /* Figma-style thin scrollbars */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgba(127, 127, 127, 0.45); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(127, 127, 127, 0.7); background-clip: content-box; }
+  ::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+  <h1 class="brand">
+    <svg class="brand__icon" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="600" height="600" rx="150" fill="#14141F"/>
+      <path d="M 295 204 A 125 125 0 1 0 295 396" fill="none" stroke="#E8734A" stroke-width="58" stroke-linecap="round"/>
+      <path d="M 330 278 L 356 300 L 330 322" fill="none" stroke="#FFB25E" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="372" y="176" width="160" height="56" rx="28" fill="#A78BFA"/>
+      <rect x="372" y="272" width="160" height="56" rx="28" fill="#8B5CF6"/>
+      <rect x="372" y="368" width="160" height="56" rx="28" fill="#6366F1"/>
+    </svg>
+    Claude2Figma<span class="version">v1.7.0</span>
+  </h1>
+  <p>Import a Claude capture into Figma, or copy this Figma canvas into the same local .deck.json format.</p>
+  <div class="mode-tabs" role="tablist" aria-label="Claude2Figma mode">
+    <button type="button" id="mode-import" class="is-active">Import to Figma</button>
+    <button type="button" id="mode-export">Copy Figma canvas</button>
+  </div>
+
+  <!-- STEP 1: choose file -->
+  <section id="screen-file" class="active">
+    <div class="drop" id="drop">
+      <div class="icon">📥</div>
+      <strong>Drop your .deck.json here</strong>
+      <p>or click to choose the file the extension downloaded</p>
+    </div>
+    <input type="file" id="file" accept=".json,application/json" hidden />
+    <div id="file-error"></div>
+    <p><strong style="color:var(--text)">…or paste JSON</strong> (use “Copy JSON” in the extension for small decks):</p>
+    <textarea id="paste" placeholder='{"schema":"claude2figma", …}'></textarea>
+    <div class="row" style="gap:8px; margin-top:8px">
+      <button id="paste-clip-btn" class="ghost" style="flex:1; margin-top:0">Paste from clipboard</button>
+      <button id="paste-btn" class="ghost" style="flex:1; margin-top:0">Use pasted JSON</button>
+    </div>
+
+    <div class="card">
+      <h2>How it works</h2>
+      <ol>
+        <li>For <b>Claude → Figma</b>: capture in Chrome, then drop or paste the JSON here.</li>
+        <li>For <b>Figma canvas copy</b>: use the <b>Copy Figma canvas</b> tab above. Figma's WebGL canvas cannot be read by Chrome, so this plugin reads the native layers itself.</li>
+        <li>Choose the artboard size before importing into this page or another Figma file.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FIGMA CANVAS COPY: native Figma layers -> .deck.json -->
+  <section id="screen-export-figma">
+    <div class="card">
+      <h2>Copy this Figma canvas</h2>
+      <p>This runs entirely inside the plugin—there is no Chrome-extension connection. The plugin reads the native Figma layers and exports a local <code>.deck.json</code> that can be imported into another Figma page/file at 1920, 1600, 1440, mobile, original or custom sizes. The destination may be Figma desktop or a different Figma login.</p>
+      <div id="figma-export-error"></div>
+      <p id="figma-selection-summary">Loading pages, frames and current selection…</p>
+
+      <label class="field">What should be copied?</label>
+      <div class="export-scope" id="figma-export-scope">
+        <label class="export-option" id="figma-scope-selection-wrap">
+          <input type="radio" name="figma-export-scope" value="selection" />
+          <span><strong>Current selection</strong><small>Frames/layers selected on this Figma canvas</small></span>
+        </label>
+        <label class="export-option">
+          <input type="radio" name="figma-export-scope" value="checklist" />
+          <span><strong>Selected frames</strong><small>Tick individual frames from the pages below</small></span>
+        </label>
+        <label class="export-option">
+          <input type="radio" name="figma-export-scope" value="current-page" checked />
+          <span><strong>Full current page</strong><small>Every top-level frame on the current page</small></span>
+        </label>
+        <label class="export-option">
+          <input type="radio" name="figma-export-scope" value="all-pages" />
+          <span><strong>All pages</strong><small>Every top-level frame in this Figma file</small></span>
+        </label>
+      </div>
+
+      <div id="figma-frame-picker-wrap" hidden>
+        <div class="artboard-actions">
+          <button type="button" id="figma-select-all">Select all</button>
+          <button type="button" id="figma-select-none">Select none</button>
+          <span id="figma-selected-count"></span>
+        </div>
+        <div class="export-frame-list" id="figma-frame-list"></div>
+      </div>
+
+      <p id="figma-export-status"></p>
+      <button id="figma-export-btn">Export Figma canvas (.deck.json)</button>
+      <button id="figma-refresh-btn" class="ghost">Refresh pages &amp; selection</button>
+    </div>
+
+    <div id="figma-export-result" hidden>
+      <div class="card">
+        <h2>Figma canvas copy ready</h2>
+        <div id="figma-export-stats"></div>
+        <p>Download it for another Figma file, copy the JSON, or import the copy into this file now and choose new artboard sizes.</p>
+      </div>
+      <button id="figma-download-btn">Download .deck.json</button>
+      <button id="figma-copy-btn" class="ghost">Copy JSON</button>
+      <button id="figma-import-copy-btn" class="ghost">Import this copy into this file</button>
+      <p id="figma-export-note"></p>
+    </div>
+  </section>
+
+  <!-- STEP 2: choose artboard size, then import -->
+  <section id="screen-ready">
+    <div class="card">
+      <div class="row">
+        <strong id="deck-title">Deck</strong>
+        <span class="pill" id="deck-slides"></span>
+      </div>
+      <p id="deck-meta"></p>
+    </div>
+
+    <div class="card">
+      <h2>Choose import artboard size</h2>
+      <p>You do not have to keep the Claude canvas size. Apply one size to every artboard below, then override any individual screen underneath. Captured sizes in this file:</p>
+      <div class="size-detected" id="size-detected"></div>
+
+      <label class="field" for="size-preset">Import every artboard at</label>
+      <select id="size-preset">
+        <option value="original" selected>Original size (as captured)</option>
+        <optgroup label="Desktop">
+          <option value="1920x1080">Desktop Full HD — 1920 × 1080</option>
+          <option value="1600x900">Desktop — 1600 × 900</option>
+          <option value="1440x900">Desktop — 1440 × 900</option>
+          <option value="1512x982">MacBook Pro 14″ — 1512 × 982</option>
+          <option value="1366x768">Laptop — 1366 × 768</option>
+          <option value="1280x800">Laptop small — 1280 × 800</option>
+        </optgroup>
+        <optgroup label="Tablet &amp; mobile">
+          <option value="834x1194">iPad — 834 × 1194</option>
+          <option value="390x844">iPhone — 390 × 844</option>
+          <option value="360x800">Android — 360 × 800</option>
+        </optgroup>
+        <optgroup label="Slides &amp; social">
+          <option value="1280x720">Slide 16:9 — 1280 × 720</option>
+          <option value="1080x1080">Instagram post — 1080 × 1080</option>
+          <option value="1080x1920">Story / Reel — 1080 × 1920</option>
+          <option value="595x842">A4 — 595 × 842</option>
+        </optgroup>
+        <option value="custom">Custom size…</option>
+      </select>
+
+      <div class="size-quick" id="size-quick" aria-label="Popular import sizes">
+        <button type="button" data-size-preset="original">Original</button>
+        <button type="button" data-size-preset="1920x1080">1920 × 1080</button>
+        <button type="button" data-size-preset="1600x900">1600 × 900</button>
+        <button type="button" data-size-preset="1440x900">1440 × 900</button>
+        <button type="button" data-size-preset="390x844">390 × 844 Mobile</button>
+        <button type="button" data-size-preset="custom">Custom…</button>
+      </div>
+
+      <div class="size-custom" id="size-custom" hidden>
+        <input type="number" id="custom-w" min="16" max="10000" step="1" aria-label="Width" />
+        <span>×</span>
+        <input type="number" id="custom-h" min="16" max="10000" step="1" aria-label="Height" />
+        <span>px</span>
+      </div>
+
+      <label class="field" for="size-fit">Global fit</label>
+      <select id="size-fit" disabled>
+        <option value="fit" selected>Fit inside — full design visible, frame exactly this size</option>
+        <option value="width">Match width — height auto (no distortion)</option>
+        <option value="fill">Fill frame — crop the extra, frame exactly this size</option>
+        <option value="stretch">Stretch to exact size (can distort)</option>
+      </select>
+
+      <p id="size-preview"></p>
+      <p id="size-note"></p>
+
+      <div id="per-artboard-wrap" hidden>
+        <label class="field">Artboards to import &amp; exact frame sizes</label>
+        <p>For a mixed desktop/tablet/mobile canvas, uncheck anything you do not want and choose or type a different exact size for each screen. A typed size overrides the global import size for that artboard only.</p>
+        <div class="artboard-actions">
+          <button type="button" id="select-all-artboards">Select all</button>
+          <button type="button" id="select-none-artboards">Select none</button>
+          <span id="selected-artboard-count"></span>
+        </div>
+        <div class="artboard-list" id="artboard-list"></div>
+      </div>
+    </div>
+
+    <div id="ready-error"></div>
+    <button id="import-btn">Import deck into this page</button>
+    <button id="back-btn" class="ghost">Choose a different file</button>
+    <p>Slides are placed next to your existing frames so nothing is overwritten.</p>
+  </section>
+
+  <!-- STEP 3: importing -->
+  <section id="screen-importing">
+    <p><span class="spinner"></span><strong style="color:var(--text)" id="status">Importing…</strong></p>
+    <div class="progress"><div id="bar"></div></div>
+    <p id="counts"></p>
+    <button id="cancel-btn" class="ghost">Cancel import</button>
+  </section>
+
+  <!-- STEP 4: result -->
+  <section id="screen-result">
+    <div class="check">✓</div>
+    <h2 id="result-title">Done</h2>
+    <div id="result-body"></div>
+    <button id="again-btn">Import another deck</button>
+  </section>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let payload = null;
+  let payloadBytes = 0;
+  let cancelling = false;
+  let slideSizes = []; // [{ name, w, h }] from the loaded file
+  let slideChoices = []; // per-slide overrides; preset/fit default to 'global'
+  let figmaCanvasData = null;
+  let figmaExportData = null;
+  let figmaExportChecked = new Set();
+  let figmaExportInProgress = false;
+  let importPrefs = null; // last-used global size preset/fit (via code.js clientStorage)
+
+  function show(id) {
+    for (const s of document.querySelectorAll('section')) s.classList.remove('active');
+    $(id).classList.add('active');
+    const exportMode = id === 'screen-export-figma';
+    $('mode-import').classList.toggle('is-active', !exportMode);
+    $('mode-export').classList.toggle('is-active', exportMode);
+  }
+  function escapeHtml(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function formatBytes(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return Math.round(n / 1024) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+  function countNodes(node) {
+    if (!node) return 0;
+    let n = 1;
+    for (const c of node.children || []) n += countNodes(c);
+    return n;
+  }
+  const fmtSize = (w, h) => Math.round(w) + ' × ' + Math.round(h);
+
+  // ---- remembered import size (lowest repeat steps) -----------------------
+  function requestImportPrefs() {
+    try { parent.postMessage({ pluginMessage: { type: 'get-import-prefs' } }, '*'); } catch (_) {}
+  }
+  function applyImportPrefs() {
+    if (!importPrefs) return;
+    const preset = importPrefs.preset;
+    if (preset && $('size-preset').querySelector('option[value="' + preset + '"]')) {
+      $('size-preset').value = preset;
+    }
+    if (importPrefs.fit && $('size-fit').querySelector('option[value="' + importPrefs.fit + '"]')) {
+      $('size-fit').value = importPrefs.fit;
+    }
+    if ($('size-preset').value === 'custom') {
+      if (Number(importPrefs.w) > 0) $('custom-w').value = importPrefs.w;
+      if (Number(importPrefs.h) > 0) $('custom-h').value = importPrefs.h;
+    }
+    updateSizePreview();
+  }
+
+  function extractSlideSizes(parsed) {
+    const root = parsed.root;
+    let slides = [root];
+    if (root.role === 'deck') {
+      const kids = (root.children || []).filter((c) => c.role === 'slide');
+      if (kids.length) slides = kids;
+    }
+    return slides.map((s, i) => ({
+      name: s.name || ('Slide ' + (i + 1)),
+      w: Math.round((s.rect && s.rect.w) || 0),
+      h: Math.round((s.rect && s.rect.h) || 0),
+    })).filter((s) => s.w > 0 && s.h > 0);
+  }
+
+  // --------------------------------------------------------- size picker
+  function groupedSizes() {
+    const groups = new Map();
+    for (const s of slideSizes) {
+      const key = s.w + 'x' + s.h;
+      groups.set(key, (groups.get(key) || 0) + 1);
+    }
+    return [...groups.entries()].map(([key, count]) => {
+      const [w, h] = key.split('x').map(Number);
+      return { w, h, count };
+    });
+  }
+
+  const INDIVIDUAL_PRESETS = [
+    { value: 'global', label: 'Use global setting' },
+    { value: 'original', label: 'Original size' },
+    { value: '1920x1080', label: 'Desktop Full HD — 1920 × 1080' },
+    { value: '1600x900', label: 'Desktop — 1600 × 900' },
+    { value: '1440x900', label: 'Desktop — 1440 × 900' },
+    { value: '1512x982', label: 'MacBook Pro 14″ — 1512 × 982' },
+    { value: '1366x768', label: 'Laptop — 1366 × 768' },
+    { value: '1280x800', label: 'Laptop small — 1280 × 800' },
+    { value: '834x1194', label: 'iPad — 834 × 1194' },
+    { value: '390x844', label: 'iPhone — 390 × 844' },
+    { value: '360x800', label: 'Android — 360 × 800' },
+    { value: '1280x720', label: 'Slide 16:9 — 1280 × 720' },
+    { value: '1080x1080', label: 'Instagram post — 1080 × 1080' },
+    { value: '1080x1920', label: 'Story / Reel — 1080 × 1920' },
+    { value: '595x842', label: 'A4 — 595 × 842' },
+    { value: 'custom', label: 'Custom size…' },
+  ];
+  const INDIVIDUAL_FITS = [
+    { value: 'global', label: 'Use global fit' },
+    { value: 'width', label: 'Match width' },
+    { value: 'fit', label: 'Fit inside' },
+    { value: 'fill', label: 'Fill / crop' },
+    { value: 'stretch', label: 'Stretch' },
+  ];
+
+  function clampSize(v, fallback) {
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) ? Math.min(10000, Math.max(16, n)) : fallback;
+  }
+
+  function initializeSlideChoices() {
+    slideChoices = slideSizes.map((s) => ({
+      enabled: true,
+      preset: 'global', fit: 'global', fitExplicit: false,
+      targetW: s.w, targetH: s.h,
+    }));
+  }
+
+  function optionTags(options, selected) {
+    return options.map((o) =>
+      '<option value="' + o.value + '"' + (o.value === selected ? ' selected' : '') + '>' +
+      escapeHtml(o.label) + '</option>').join('');
+  }
+
+  function renderDetectedSizes() {
+    const first = slideSizes[0] || { w: 1440, h: 900 };
+    const pills = groupedSizes().map((g) =>
+      '<span class="pill">' + fmtSize(g.w, g.h) + (g.count > 1 ? ' · ×' + g.count : '') + '</span>');
+    $('size-detected').innerHTML = pills.join('');
+    $('custom-w').value = first.w;
+    $('custom-h').value = first.h;
+    $('size-note').textContent = groupedSizes().length > 1
+      ? 'Different artboard sizes detected. Choose one global size above, or type an exact size for any artboard below.'
+      : 'Type an exact width × height in the artboard row below, or use the global size above.';
+  }
+
+  function renderArtboardControls() {
+    $('per-artboard-wrap').hidden = slideSizes.length === 0;
+    $('artboard-list').innerHTML = slideSizes.map((s, i) => {
+      const c = slideChoices[i] || {
+        enabled: true, preset: 'global', fit: 'global', fitExplicit: false,
+        targetW: s.w, targetH: s.h,
+      };
+      return '<div class="artboard-row" data-index="' + i + '">'
+        + '<div class="artboard-head"><strong>' + (i + 1) + '. ' + escapeHtml(s.name) + '</strong>'
+        + '<span class="slide-target"></span></div>'
+        + '<div class="artboard-meta">Captured: ' + fmtSize(s.w, s.h) + ' · <span class="slide-source"></span></div>'
+        + '<label class="artboard-check"><input type="checkbox" class="slide-enabled" ' + (c.enabled === false ? '' : 'checked') + ' /> Import this artboard</label>'
+        + '<div class="slide-size-label">Target Figma frame size (px)</div>'
+        + '<div class="size-custom slide-size-inputs">'
+        + '<input type="number" class="slide-custom-w slide-target-w" min="16" max="10000" step="1" value="' + c.targetW + '" aria-label="Target width for ' + escapeHtml(s.name) + '" />'
+        + '<span>×</span>'
+        + '<input type="number" class="slide-custom-h slide-target-h" min="16" max="10000" step="1" value="' + c.targetH + '" aria-label="Target height for ' + escapeHtml(s.name) + '" />'
+        + '<span>px</span></div>'
+        + '<div class="artboard-controls">'
+        + '<select class="slide-preset" aria-label="Size preset for ' + escapeHtml(s.name) + '">' + optionTags(INDIVIDUAL_PRESETS, c.preset) + '</select>'
+        + '<select class="slide-fit" aria-label="Fit for ' + escapeHtml(s.name) + '">' + optionTags(INDIVIDUAL_FITS, c.fit) + '</select>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+    refreshArtboardControls();
+  }
+
+  function selectedGlobalSizeOptions() {
+    const preset = $('size-preset').value;
+    if (preset === 'original') return { fit: 'original' };
+    let targetW, targetH;
+    if (preset === 'custom') {
+      const first = slideSizes[0] || { w: 1440, h: 900 };
+      targetW = clampSize($('custom-w').value, first.w);
+      targetH = clampSize($('custom-h').value, first.h);
+    } else {
+      [targetW, targetH] = preset.split('x').map(Number);
+    }
+    return { fit: $('size-fit').value, targetW, targetH };
+  }
+
+  function resolveSlideSizeOption(index) {
+    const globalOption = selectedGlobalSizeOptions();
+    const choice = slideChoices[index];
+    const slide = slideSizes[index] || { w: 1440, h: 900 };
+    const enabled = !choice || choice.enabled !== false;
+    if (!choice || choice.preset === 'global') return { ...globalOption, enabled };
+    if (choice.preset === 'original') return { fit: 'original', enabled };
+
+    let targetW, targetH;
+    if (choice.preset === 'custom') {
+      targetW = clampSize(choice.targetW, slide.w);
+      targetH = clampSize(choice.targetH, slide.h);
+    } else {
+      [targetW, targetH] = choice.preset.split('x').map(Number);
+    }
+    let fit = choice.fit;
+    if (fit === 'global') fit = globalOption.fit === 'original' ? 'fit' : globalOption.fit;
+    return { fit, targetW, targetH, enabled };
+  }
+
+  function selectedSizeOptions() {
+    const globalOption = selectedGlobalSizeOptions();
+    return {
+      ...globalOption,
+      slides: slideSizes.map((_, i) => resolveSlideSizeOption(i)),
+    };
+  }
+
+  function hasArtboardOverrides() {
+    return slideChoices.some((c) => c && (c.preset !== 'global' || c.enabled === false));
+  }
+
+  function enabledArtboardCount() {
+    return slideChoices.filter((c) => !c || c.enabled !== false).length;
+  }
+
+  // Mirrors applySizeOption() in code.js so the preview is exact.
+  function resultingFrame(w, h, opts) {
+    if (!opts || opts.fit === 'original') return { w, h, scale: 1 };
+    const tW = opts.targetW, tH = opts.targetH;
+    if (opts.fit === 'width') { const k = tW / w; return { w: tW, h: Math.round(h * k), scale: k }; }
+    if (opts.fit === 'fit') return { w: tW, h: tH, scale: Math.min(tW / w, tH / h) };
+    if (opts.fit === 'fill') return { w: tW, h: tH, scale: Math.max(tW / w, tH / h) };
+    return { w: tW, h: tH, scale: tW / w, scaleY: tH / h };
+  }
+
+  function formatScale(r) {
+    return r.scaleY
+      ? Math.round(r.scale * 100) + '% × ' + Math.round(r.scaleY * 100) + '%'
+      : Math.round(r.scale * 100) + '%';
+  }
+
+  function refreshArtboardControls() {
+    for (const row of document.querySelectorAll('.artboard-row')) {
+      const i = Number(row.dataset.index);
+      const slide = slideSizes[i];
+      const choice = slideChoices[i];
+      if (!slide || !choice) continue;
+      const enabled = choice.enabled !== false;
+      row.classList.toggle('is-disabled', !enabled);
+
+      const checkbox = row.querySelector('.slide-enabled');
+      if (checkbox) checkbox.checked = enabled;
+      const presetSelect = row.querySelector('.slide-preset');
+      const fitSelect = row.querySelector('.slide-fit');
+      const widthInput = row.querySelector('.slide-target-w');
+      const heightInput = row.querySelector('.slide-target-h');
+      presetSelect.value = choice.preset;
+      fitSelect.value = choice.fit;
+      presetSelect.disabled = !enabled;
+      widthInput.disabled = !enabled;
+      heightInput.disabled = !enabled;
+      fitSelect.disabled = !enabled || choice.preset === 'global' || choice.preset === 'original';
+
+      const opts = resolveSlideSizeOption(i);
+      const result = resultingFrame(slide.w, slide.h, opts);
+      const displayedW = opts.fit === 'original' ? slide.w : (opts.targetW || slide.w);
+      const displayedH = opts.fit === 'original' ? slide.h : (opts.targetH || slide.h);
+      if (document.activeElement !== widthInput) widthInput.value = displayedW;
+      if (document.activeElement !== heightInput) heightInput.value = displayedH;
+
+      row.querySelector('.slide-target').textContent = enabled
+        ? fmtSize(slide.w, slide.h) + ' → ' + fmtSize(result.w, result.h)
+        : 'Not imported';
+      let source = 'Target follows the global setting — type above to override only this artboard';
+      if (!enabled) source = 'Unchecked — this artboard will be skipped';
+      else if (choice.preset === 'original') source = 'Keeps this artboard at its captured size';
+      else if (choice.preset === 'custom') source = 'Uses the exact individual size typed above';
+      else if (choice.preset !== 'global') source = 'Uses an individual preset size';
+      if (enabled && choice.preset !== 'global' && choice.preset !== 'original' && choice.fit === 'global') {
+        source += ' and the global fit';
+      }
+      row.querySelector('.slide-source').textContent = enabled
+        ? source + ' · scale ' + formatScale(result)
+        : source;
+    }
+
+    const count = enabledArtboardCount();
+    const countEl = $('selected-artboard-count');
+    if (countEl) countEl.textContent = count + ' of ' + slideSizes.length + ' selected';
+    const importBtn = $('import-btn');
+    if (importBtn) {
+      importBtn.disabled = slideSizes.length > 0 && count === 0;
+      importBtn.textContent = count === 0
+        ? 'Select an artboard to import'
+        : (slideSizes.length > 1 && count !== slideSizes.length
+          ? 'Import ' + count + ' selected artboard' + (count === 1 ? '' : 's')
+          : 'Import deck into this page');
+    }
+  }
+
+  function updateSizePreview() {
+    const preset = $('size-preset').value;
+    for (const button of document.querySelectorAll('[data-size-preset]')) {
+      button.classList.toggle('is-active', button.dataset.sizePreset === preset);
+    }
+    $('size-custom').hidden = preset !== 'custom';
+    $('size-fit').disabled = preset === 'original';
+
+    const groups = new Map();
+    slideSizes.forEach((s, i) => {
+      const opts = resolveSlideSizeOption(i);
+      if (opts.enabled === false) return;
+      const r = resultingFrame(s.w, s.h, opts);
+      const key = [s.w, s.h, r.w, r.h, Math.round(r.scale * 10000), Math.round((r.scaleY || r.scale) * 10000)].join('|');
+      const existing = groups.get(key);
+      if (existing) existing.count += 1;
+      else groups.set(key, { from: s, result: r, count: 1 });
+    });
+
+    const lines = [...groups.values()].map(({ from, result, count }) => {
+      if (result.w === from.w && result.h === from.h && result.scale === 1) {
+        return 'Keep ' + fmtSize(from.w, from.h) + (count > 1 ? ' (×' + count + ' frames)' : '');
+      }
+      return fmtSize(from.w, from.h) + ' → ' + fmtSize(result.w, result.h)
+        + ' · scale ' + formatScale(result) + (count > 1 ? ' (×' + count + ' frames)' : '');
+    });
+
+    const prefix = hasArtboardOverrides()
+      ? 'Checked artboards will be created at these exact Figma frame sizes:\n'
+      : (groupedSizes().length > 1 && preset !== 'original'
+        ? 'The global size is applied to every artboard:\n' : '');
+    $('size-preview').textContent = lines.length
+      ? prefix + lines.join('\n')
+      : 'Select at least one artboard to import.';
+    refreshArtboardControls();
+  }
+
+  $('size-preset').addEventListener('change', updateSizePreview);
+  $('size-quick').addEventListener('click', (event) => {
+    const button = event.target.closest ? event.target.closest('[data-size-preset]') : null;
+    if (!button) return;
+    const preset = button.dataset.sizePreset;
+    $('size-preset').value = preset;
+    // A shortcut labelled with an exact W × H should create exactly that
+    // frame with the complete design fitted inside it.
+    if (preset !== 'original') $('size-fit').value = 'fit';
+    updateSizePreview();
+    if (preset === 'custom') $('custom-w').focus();
+  });
+  $('size-fit').addEventListener('change', updateSizePreview);
+  $('custom-w').addEventListener('input', updateSizePreview);
+  $('custom-h').addEventListener('input', updateSizePreview);
+
+  function handleArtboardControl(event) {
+    const row = event.target.closest ? event.target.closest('[data-index]') : null;
+    if (!row) return;
+    const i = Number(row.dataset.index);
+    const choice = slideChoices[i];
+    if (!choice) return;
+
+    if (event.target.classList.contains('slide-enabled')) {
+      choice.enabled = !!event.target.checked;
+    }
+    if (event.target.classList.contains('slide-preset')) {
+      const before = resolveSlideSizeOption(i);
+      choice.preset = event.target.value;
+      if (choice.preset === 'custom') {
+        if (before.targetW) choice.targetW = before.targetW;
+        if (before.targetH) choice.targetH = before.targetH;
+        if (!choice.fitExplicit) choice.fit = 'fit';
+      } else if (choice.preset !== 'global' && choice.preset !== 'original') {
+        const [w, h] = choice.preset.split('x').map(Number);
+        choice.targetW = w;
+        choice.targetH = h;
+      }
+    }
+    if (event.target.classList.contains('slide-fit')) {
+      choice.fit = event.target.value;
+      choice.fitExplicit = choice.fit !== 'global';
+    }
+    if (event.target.classList.contains('slide-target-w')
+      || event.target.classList.contains('slide-custom-w')) {
+      choice.targetW = event.target.value;
+      choice.preset = 'custom';
+      if (!choice.fitExplicit) choice.fit = 'fit';
+    }
+    if (event.target.classList.contains('slide-target-h')
+      || event.target.classList.contains('slide-custom-h')) {
+      choice.targetH = event.target.value;
+      choice.preset = 'custom';
+      if (!choice.fitExplicit) choice.fit = 'fit';
+    }
+    updateSizePreview();
+  }
+
+  $('artboard-list').addEventListener('change', handleArtboardControl);
+  $('artboard-list').addEventListener('input', handleArtboardControl);
+  $('select-all-artboards').addEventListener('click', () => {
+    slideChoices.forEach((c) => { c.enabled = true; });
+    updateSizePreview();
+  });
+  $('select-none-artboards').addEventListener('click', () => {
+    slideChoices.forEach((c) => { c.enabled = false; });
+    updateSizePreview();
+  });
+
+  // ------------------------------------------------------- Figma canvas copy
+  function figmaExportScope() {
+    const checked = document.querySelector('input[name="figma-export-scope"]:checked');
+    return checked ? checked.value : 'current-page';
+  }
+
+  function allFigmaFrames() {
+    if (!figmaCanvasData) return [];
+    return figmaCanvasData.pages.flatMap((page) => page.frames.map((frame) => ({ page, frame })));
+  }
+
+  function updateFigmaExportUI() {
+    if (!figmaCanvasData) return;
+    const scope = figmaExportScope();
+    const selectionCount = figmaCanvasData.selection.length;
+    const selectionRadio = document.querySelector('input[name="figma-export-scope"][value="selection"]');
+    selectionRadio.disabled = selectionCount === 0;
+    $('figma-scope-selection-wrap').classList.toggle('is-disabled', selectionCount === 0);
+    $('figma-selection-summary').textContent = selectionCount
+      ? 'Current Figma selection: ' + figmaCanvasData.selection
+        .map((node) => node.name + ' (' + fmtSize(node.w, node.h) + ')').join(', ')
+      : 'No layers are currently selected on the Figma canvas.';
+    $('figma-frame-picker-wrap').hidden = scope !== 'checklist';
+    $('figma-selected-count').textContent = figmaExportChecked.size + ' checked';
+
+    const currentPage = figmaCanvasData.pages.find((page) => page.id === figmaCanvasData.currentPageId)
+      || figmaCanvasData.pages[0];
+    const currentCount = currentPage ? currentPage.frames.length : 0;
+    const allCount = allFigmaFrames().length;
+    let disabled = false;
+    let label = 'Export Figma canvas (.deck.json)';
+    if (scope === 'selection') {
+      disabled = selectionCount === 0;
+      label = selectionCount ? 'Export current selection (' + selectionCount + ')' : 'Select a Figma layer first';
+    } else if (scope === 'checklist') {
+      disabled = figmaExportChecked.size === 0;
+      label = disabled ? 'Tick frames to export' : 'Export ' + figmaExportChecked.size + ' checked frame' + (figmaExportChecked.size === 1 ? '' : 's');
+    } else if (scope === 'all-pages') {
+      disabled = allCount === 0;
+      label = 'Export all pages (' + allCount + ' frames)';
+    } else {
+      disabled = currentCount === 0;
+      label = 'Export current page (' + currentCount + ' frames)';
+    }
+    $('figma-export-btn').disabled = disabled || figmaExportInProgress;
+    $('figma-export-btn').textContent = label;
+  }
+
+  function renderFigmaCanvas(data) {
+    figmaCanvasData = data;
+    const availableIds = new Set(allFigmaFrames().map(({ frame }) => frame.id));
+    for (const id of [...figmaExportChecked]) {
+      if (!availableIds.has(id)) figmaExportChecked.delete(id);
+    }
+    if (!figmaExportChecked.size) {
+      const currentPage = data.pages.find((page) => page.id === data.currentPageId) || data.pages[0];
+      if (currentPage) {
+        for (const frame of currentPage.frames) figmaExportChecked.add(frame.id);
+      }
+    }
+    if (figmaExportScope() === 'selection' && !data.selection.length) {
+      document.querySelector('input[name="figma-export-scope"][value="current-page"]').checked = true;
+    }
+    $('figma-frame-list').innerHTML = data.pages.map((page) =>
+      '<div class="export-page-title">' + escapeHtml(page.name) + '</div>'
+      + (page.frames.length ? page.frames.map((frame) =>
+        '<label class="export-frame-choice">'
+        + '<input type="checkbox" class="figma-frame-check" data-frame-id="' + escapeHtml(frame.id) + '"'
+        + (figmaExportChecked.has(frame.id) ? ' checked' : '') + ' />'
+        + '<span><strong>' + escapeHtml(frame.name) + '</strong>'
+        + '<small>' + escapeHtml(frame.type) + ' · ' + fmtSize(frame.w, frame.h) + '</small></span></label>'
+      ).join('') : '<p>No top-level frames on this page.</p>')
+    ).join('');
+    $('figma-export-status').textContent = allFigmaFrames().length
+      ? 'Found ' + allFigmaFrames().length + ' Figma frame(s) across ' + data.pages.length + ' page(s).'
+      : 'No top-level Figma frames were found.';
+    updateFigmaExportUI();
+  }
+
+
+  // ------------------------------------------------- Figma canvas copy
+  // This export is standalone: the plugin reads native layers through the
+  // Figma Plugin API and produces the same .deck.json used for imports.
+  // There is deliberately no Chrome-extension bridge or account connection.
+  function sanitizeFigmaExportOptions(options) {
+    const allowed = ['selection', 'checklist', 'current-page', 'all-pages'];
+    const scope = allowed.includes(options && options.scope) ? options.scope : 'current-page';
+    const frameIds = [];
+    const seen = new Set();
+    for (const raw of Array.isArray(options && options.frameIds) ? options.frameIds : []) {
+      const id = String(raw || '').trim();
+      if (!id || id.length > 256 || seen.has(id)) continue;
+      seen.add(id);
+      frameIds.push(id);
+      if (frameIds.length >= 10000) break;
+    }
+    return { scope, frameIds: scope === 'checklist' ? frameIds : [] };
+  }
+
+  function startFigmaExport(rawOptions) {
+    if (figmaExportInProgress) return false;
+    const options = sanitizeFigmaExportOptions(rawOptions || {
+      scope: figmaExportScope(),
+      frameIds: [...figmaExportChecked],
+    });
+    if (options.scope === 'checklist') figmaExportChecked = new Set(options.frameIds);
+    const radio = document.querySelector(
+      'input[name="figma-export-scope"][value="' + options.scope + '"]');
+    if (radio) radio.checked = true;
+    if (figmaCanvasData && options.scope === 'checklist') renderFigmaCanvas(figmaCanvasData);
+
+    show('screen-export-figma');
+    $('figma-export-error').innerHTML = '';
+    $('figma-export-result').hidden = true;
+    figmaExportData = null;
+    figmaExportInProgress = true;
+    $('figma-export-status').textContent = 'Copying native Figma layers…';
+    $('figma-export-btn').disabled = true;
+    parent.postMessage({
+      pluginMessage: { type: 'export-figma-canvas', options },
+    }, '*');
+    return true;
+  }
+
+  function requestFigmaCanvas() {
+    $('figma-export-error').innerHTML = '';
+    $('figma-selection-summary').textContent = 'Loading pages, frames and current selection…';
+    $('figma-export-status').textContent = 'Reading this Figma file…';
+    parent.postMessage({ pluginMessage: { type: 'get-figma-canvas' } }, '*');
+  }
+
+  function downloadFigmaExport() {
+    if (!figmaExportData) return;
+    try {
+      const blob = new Blob([figmaExportData.json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = figmaExportData.filename || 'figma-canvas.deck.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      $('figma-export-note').textContent = 'Download started. Open Claude2Figma in the destination Figma file and drop this file there.';
+    } catch (_) {
+      $('figma-export-note').textContent = 'Download was blocked by Figma. Use Copy JSON instead.';
+    }
+  }
+
+  async function copyFigmaExport() {
+    if (!figmaExportData) return;
+    const json = figmaExportData.json;
+    if (json.length > 2 * 1024 * 1024) {
+      $('figma-export-note').textContent = 'This copy is ' + formatBytes(new Blob([json]).size)
+        + ' — use Download instead of clipboard for reliability.';
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(json);
+      $('figma-export-note').textContent = 'Copied. In the destination Figma file, open Claude2Figma → Import to Figma → paste JSON.';
+      return;
+    } catch (_) { /* textarea fallback */ }
+    const textarea = document.createElement('textarea');
+    textarea.value = json;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch (_) { copied = false; }
+    textarea.remove();
+    $('figma-export-note').textContent = copied
+      ? 'Copied. Paste it into Claude2Figma in the destination Figma file.'
+      : 'Clipboard copy failed — use Download instead.';
+  }
+
+  $('mode-import').addEventListener('click', () => show('screen-file'));
+  $('mode-export').addEventListener('click', () => {
+    show('screen-export-figma');
+    requestFigmaCanvas();
+  });
+  $('figma-refresh-btn').addEventListener('click', requestFigmaCanvas);
+  $('figma-export-scope').addEventListener('change', updateFigmaExportUI);
+  $('figma-frame-list').addEventListener('change', (event) => {
+    const input = event.target;
+    if (!input.classList || !input.classList.contains('figma-frame-check')) return;
+    if (input.checked) figmaExportChecked.add(input.dataset.frameId);
+    else figmaExportChecked.delete(input.dataset.frameId);
+    updateFigmaExportUI();
+  });
+  $('figma-select-all').addEventListener('click', () => {
+    figmaExportChecked = new Set(allFigmaFrames().map(({ frame }) => frame.id));
+    renderFigmaCanvas(figmaCanvasData);
+  });
+  $('figma-select-none').addEventListener('click', () => {
+    figmaExportChecked.clear();
+    renderFigmaCanvas(figmaCanvasData);
+  });
+  $('figma-export-btn').addEventListener('click', () => {
+    startFigmaExport({
+      scope: figmaExportScope(),
+      frameIds: [...figmaExportChecked],
+    });
+  });
+  $('figma-download-btn').addEventListener('click', downloadFigmaExport);
+  $('figma-copy-btn').addEventListener('click', copyFigmaExport);
+  $('figma-import-copy-btn').addEventListener('click', () => {
+    if (!figmaExportData) return;
+    try {
+      acceptDeck(parseDeckText(figmaExportData.json), new Blob([figmaExportData.json]).size);
+    } catch (e) {
+      $('figma-export-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+    }
+  });
+
+  // ------------------------------------------------------------ file load
+  function acceptDeck(parsed, byteSize) {
+    payload = parsed;
+    payloadBytes = byteSize;
+    slideSizes = extractSlideSizes(parsed);
+    const slides = parsed.slideCount || slideSizes.length || 1;
+    $('deck-title').textContent = parsed.title || 'Untitled deck';
+    $('deck-slides').textContent = slides + (slides === 1 ? ' slide' : ' slides');
+    const nodes = countNodes(parsed.root);
+    let meta = formatBytes(byteSize) + ' · ' + nodes.toLocaleString() + ' layers';
+    if (parsed.capturedAt) meta += ' · captured ' + new Date(parsed.capturedAt).toLocaleDateString();
+    $('deck-meta').textContent = meta;
+    $('ready-error').innerHTML = byteSize > 25 * 1024 * 1024
+      ? '<div class="error">This deck is very large (' + formatBytes(byteSize) + '). Import can be slow; consider splitting it into smaller decks in Claude Design.</div>'
+      : '';
+    $('size-preset').value = 'original';
+    $('size-fit').value = 'fit';
+    initializeSlideChoices();
+    applyImportPrefs();
+    renderDetectedSizes();
+    renderArtboardControls();
+    updateSizePreview();
+    show('screen-ready');
+  }
+
+  function parseDeckText(text) {
+    let parsed;
+    try { parsed = JSON.parse(text); }
+    catch (e) { throw new Error('That is not valid JSON. Pick the .deck.json file the Claude2Figma extension downloaded.'); }
+    if (!parsed || typeof parsed !== 'object' || !parsed.root) {
+      throw new Error('This JSON has no layer tree. Capture the deck again with the Claude2Figma extension.');
+    }
+    // Accept the current schema id and the legacy one used by pre-rename builds.
+    if (parsed.schema && parsed.schema !== 'claude2figma' && parsed.schema !== 'deckbridge') {
+      throw new Error('This file was not captured by Claude2Figma (schema: ' + parsed.schema + ').');
+    }
+    return parsed;
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        acceptDeck(parseDeckText(String(reader.result)), file.size);
+        $('file-error').innerHTML = '';
+      } catch (e) {
+        $('file-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+      }
+    };
+    reader.onerror = () => {
+      $('file-error').innerHTML = '<div class="error">Could not read that file.</div>';
+    };
+    reader.readAsText(file);
+  }
+
+  $('drop').addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => handleFile(e.target.files[0]));
+  for (const ev of ['dragover', 'dragenter']) {
+    $('drop').addEventListener(ev, (e) => { e.preventDefault(); $('drop').classList.add('over'); });
+  }
+  for (const ev of ['dragleave', 'drop']) {
+    $('drop').addEventListener(ev, (e) => { e.preventDefault(); $('drop').classList.remove('over'); });
+  }
+  $('drop').addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));
+  document.addEventListener('dragover', (e) => e.preventDefault());
+  document.addEventListener('drop', (e) => e.preventDefault());
+
+  $('paste-btn').addEventListener('click', () => {
+    const text = $('paste').value.trim();
+    if (!text) {
+      $('file-error').innerHTML = '<div class="error">Paste the deck JSON first (extension → “Copy JSON”).</div>';
+      return;
+    }
+    try {
+      acceptDeck(parseDeckText(text), new Blob([text]).size);
+      $('file-error').innerHTML = '';
+    } catch (e) {
+      $('file-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+    }
+  });
+
+  // Lowest-step paste: the deck loads the moment valid JSON lands in the box —
+  // no confirmation click needed after ⌘V / Ctrl+V.
+  $('paste').addEventListener('paste', () => {
+    setTimeout(() => {
+      const text = $('paste').value.trim();
+      if (!text || text[0] !== '{') return;
+      try {
+        acceptDeck(parseDeckText(text), new Blob([text]).size);
+        $('file-error').innerHTML = '';
+      } catch (e) {
+        $('file-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+      }
+    }, 0);
+  });
+
+  // One click straight from the clipboard (extension auto-copies on capture).
+  // If the browser/Figma blocks clipboard read, fall back to the paste hint.
+  $('paste-clip-btn').addEventListener('click', async () => {
+    let text = '';
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        text = await navigator.clipboard.readText();
+      }
+    } catch (_) { /* blocked → hint below */ }
+    text = (text || '').trim();
+    if (!text) {
+      const mod = /Mac|iPhone|iPad/i.test((navigator.platform || '') + navigator.userAgent)
+        ? '⌘V' : 'Ctrl+V';
+      $('file-error').innerHTML = '<div class="error">The clipboard is empty or paste is blocked here — click the box below and press ' + mod + '.</div>';
+      return;
+    }
+    $('paste').value = text;
+    try {
+      acceptDeck(parseDeckText(text), new Blob([text]).size);
+      $('file-error').innerHTML = '';
+    } catch (e) {
+      $('file-error').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
+    }
+  });
+
+  // Ask code.js for the last-used import size as soon as the UI boots.
+  requestImportPrefs();
+
+  $('back-btn').addEventListener('click', () => { payload = null; show('screen-file'); });
+  $('again-btn').addEventListener('click', () => { payload = null; $('paste').value = ''; show('screen-file'); });
+
+  $('import-btn').addEventListener('click', () => {
+    if (!payload) return;
+    if (slideSizes.length && enabledArtboardCount() === 0) {
+      $('ready-error').innerHTML = '<div class="error">Select at least one artboard to import.</div>';
+      return;
+    }
+    cancelling = false;
+    $('cancel-btn').textContent = 'Cancel import';
+    $('cancel-btn').disabled = false;
+    $('status').textContent = 'Importing…';
+    $('counts').textContent = '';
+    $('bar').style.width = '0%';
+    show('screen-importing');
+    // Remember this import's size choices for next time (lowest repeat steps).
+    parent.postMessage(
+      { pluginMessage: { type: 'save-import-prefs', prefs: {
+        preset: $('size-preset').value,
+        fit: $('size-fit').value,
+        w: $('custom-w').value,
+        h: $('custom-h').value,
+      } } },
+      '*');
+    parent.postMessage(
+      { pluginMessage: { type: 'import', payload, options: selectedSizeOptions() } },
+      '*');
+  });
+
+  $('cancel-btn').addEventListener('click', () => {
+    cancelling = true;
+    $('cancel-btn').textContent = 'Cancelling…';
+    $('cancel-btn').disabled = true;
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+  });
+
+  window.onmessage = (event) => {
+    const msg = event.data && event.data.pluginMessage;
+    if (!msg) return;
+
+    if (msg.type === 'import-prefs') {
+      importPrefs = msg.prefs || null;
+      if (importPrefs && $('screen-ready').classList.contains('active')) applyImportPrefs();
+    }
+    if (msg.type === 'progress') {
+      const pct = msg.total > 0 ? Math.round((msg.done / msg.total) * 100) : 0;
+      $('bar').style.width = pct + '%';
+      $('counts').textContent = msg.done.toLocaleString() + ' of ' + msg.total.toLocaleString() + ' layers';
+    }
+    if (msg.type === 'status') $('status').textContent = msg.message;
+    if (msg.type === 'figma-canvas') renderFigmaCanvas(msg);
+    if (msg.type === 'figma-export-status') $('figma-export-status').textContent = msg.message;
+    if (msg.type === 'figma-export') {
+      figmaExportInProgress = false;
+      figmaExportData = msg;
+      $('figma-export-result').hidden = false;
+      $('figma-export-status').textContent = 'Figma canvas copy is ready.';
+      $('figma-export-stats').innerHTML = '<div class="ok">' + msg.slides
+        + (msg.slides === 1 ? ' artboard' : ' artboards') + ' · '
+        + msg.nodes.toLocaleString() + ' layers · '
+        + formatBytes(new Blob([msg.json]).size) + '</div>'
+        + '<p>' + msg.frames.map((frame) =>
+          escapeHtml(frame.name) + ': ' + frame.width + ' × ' + frame.height).join('<br>') + '</p>';
+      $('figma-export-note').textContent = '';
+      updateFigmaExportUI();
+    }
+    if (msg.type === 'figma-export-error') {
+      figmaExportInProgress = false;
+      show('screen-export-figma');
+      $('figma-export-error').innerHTML = '<div class="error">' + escapeHtml(msg.message) + '</div>';
+      $('figma-export-status').textContent = '';
+      updateFigmaExportUI();
+    }
+
+    if (msg.type === 'result') {
+      $('result-title').textContent = msg.cancelled ? 'Import cancelled' : 'Deck imported';
+      let html = '<div class="ok">' + msg.slides + (msg.slides === 1 ? ' slide' : ' slides') +
+        ' · ' + msg.nodes.toLocaleString() + ' editable layers added to this page.</div>';
+      const cleanups = [];
+      if (msg.layersRemoved) cleanups.push(msg.layersRemoved.toLocaleString() + ' unnecessary wrapper frames removed before building');
+      if (msg.inferredAutoLayouts) cleanups.push(msg.inferredAutoLayouts.toLocaleString() + ' Auto Layout groups recovered from exact stacks');
+      if (cleanups.length) html += '<p>' + cleanups.join(' · ') + '.</p>';
+      if (msg.frameSizes && msg.frameSizes.length) {
+        html += '<div class="card"><h2>Imported frame sizes</h2><p>'
+          + msg.frameSizes.map((s) => escapeHtml(s.name) + ': ' + s.width + ' × ' + s.height
+              + (s.scale !== 100 ? ' (' + s.scale + '%)' : '')).join('<br>')
+          + '</p></div>';
+      }
+      const warnings = [];
+      if (msg.missingFonts && msg.missingFonts.length) {
+        warnings.push('Fonts not available in Figma (substituted): ' + msg.missingFonts.join(', ') +
+          '. Install/enable them in Figma and re-import for a perfect match.');
+      }
+      if (msg.failedImages) warnings.push(msg.failedImages + ' image(s) could not be captured and were replaced with grey placeholders.');
+      if (msg.failedVectors) warnings.push(msg.failedVectors + ' SVG(s) could not be parsed and were replaced with placeholders.');
+      if (warnings.length) {
+        html += '<p class="warn">⚠️ ' + warnings.map(escapeHtml).join('<br>⚠️ ') + '</p>';
+      }
+      $('result-body').innerHTML = html;
+      show('screen-result');
+    }
+
+    if (msg.type === 'error') {
+      show('screen-ready');
+      $('ready-error').innerHTML = '<div class="error">' + escapeHtml(msg.message) + '</div>';
+    }
+  };
+</script>
+</body>
+</html>

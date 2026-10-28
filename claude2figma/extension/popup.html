@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body class="surface surface--popup">
+    <header class="appbar">
+      <div class="appbar__brand">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" class="appbar__icon" role="img" aria-label="Claude2Figma">
+          <rect width="600" height="600" rx="150" fill="#14141F"/>
+          <path d="M 295 204 A 125 125 0 1 0 295 396" fill="none" stroke="#E8734A" stroke-width="58" stroke-linecap="round"/>
+          <path d="M 330 278 L 356 300 L 330 322" fill="none" stroke="#FFB25E" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="372" y="176" width="160" height="56" rx="28" fill="#A78BFA"/>
+          <rect x="372" y="272" width="160" height="56" rx="28" fill="#8B5CF6"/>
+          <rect x="372" y="368" width="160" height="56" rx="28" fill="#6366F1"/>
+        </svg>
+        <strong>Claude2Figma</strong>
+      </div>
+    </header>
+
+    <main id="root" class="screens">
+      <section data-screen="booting"></section>
+      <section data-screen="home"></section>
+      <section data-screen="capturing"></section>
+      <section data-screen="success"></section>
+      <section data-screen="decks"></section>
+      <section data-screen="error"></section>
+      <section data-screen="how-to"></section>
+    </main>
+
+    <nav class="tabbar">
+      <button type="button" class="tabbar__item" id="tab-home">Home</button>
+      <button type="button" class="tabbar__item" id="tab-decks">Decks</button>
+      <button type="button" class="tabbar__item" id="tab-how-to">How to use</button>
+    </nav>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

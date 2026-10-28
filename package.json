@@ -1,0 +1,19 @@
+{
+  "name": "claude2figma",
+  "version": "1.7.0",
+  "description": "Free, local-only Claude Design & Figma canvas → Figma importer: Chrome extension + Figma plugin, one .deck.json file, no account, no server.",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ankushui18/Claude2Figma.git"
+  },
+  "scripts": {
+    "test": "node claude2figma/test/run-all.js",
+    "icons": "node claude2figma/brand/build-icons.js"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "jsdom": "30.1.3"
+  }
+}

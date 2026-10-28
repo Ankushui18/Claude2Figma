@@ -1,0 +1,15 @@
+# Dependencies (test-only; the extension & plugin need no npm)
+node_modules/
+
+# Packaged stores uploads
+*.zip
+
+# Logs & OS junk
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
