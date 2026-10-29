@@ -2083,8 +2083,29 @@
   function inferAutoLayouts(node, report) {
     for (const child of node.children || []) inferAutoLayouts(child, report);
     if (!node || node.type !== 'FRAME' || node.role === 'deck') return;
-    if (node.layout && node.layout.mode !== 'NONE') return;
     const kids = node.children || [];
+    const existing = node.layout;
+    if (existing && existing.mode !== 'NONE') {
+      // Flex/grid frames: CSS `gap` alone misses CHILD MARGINS (common
+      // "* + *" stacks set margins, not gap), so re-derive gap and padding
+      // from the measured geometry when — and only when — one uniform gap
+      // with start-anchored children reproduces the capture exactly. That
+      // folds uniform child margins (and the trailing margin) into the
+      // layout; otherwise the CSS-derived values stand.
+      if (kids.length < 2) return;
+      if (kids.some((c) => c.absolute || c.zIndex != null || !c.rect || c.rect.w <= 0 || c.rect.h <= 0)) return;
+      // Free space sitting before the children (center / end / space-between)
+      // would contaminate the measured insets — only refine start-anchored
+      // layouts, and only when the measured cross anchoring matches what
+      // Figma will apply, so the reflow cannot move layers.
+      if ((existing.primaryAlign || 'MIN') !== 'MIN') return;
+      const refined = inferredLayoutCandidate(node, kids, existing.mode === 'VERTICAL');
+      if (!refined) return;
+      if (refined.counterAlign !== (existing.counterAlign || 'MIN')) return;
+      existing.gap = refined.gap;
+      existing.padding = refined.padding;
+      return;
+    }
     if (kids.length < 2) return;
     if (kids.some((c) => c.absolute || c.zIndex != null || !c.rect || c.rect.w <= 0 || c.rect.h <= 0)) return;
     const vertical = inferredLayoutCandidate(node, kids, true);
