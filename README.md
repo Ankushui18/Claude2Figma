@@ -165,6 +165,12 @@ Everything is plain JS/HTML/CSS — no npm, no bundler, no TypeScript compile
 to run either part. (`npm install` exists only for the optional headless
 test suite and icon rebuilds.)
 
+> **Just want to use it?** Grab the ready-made zips from the
+> [Releases page](https://github.com/Ankushui18/Claude2Figma/releases) —
+> `claude2figma-extension-v*.zip` and `claude2figma-figma-plugin-v*.zip` —
+> CI builds and attaches them automatically for every `v*` tag. The steps
+> below cover installing straight from a checkout.
+
 ### 1 · Chrome extension
 
 1. Open `chrome://extensions`
@@ -323,7 +329,12 @@ mapping, `border-image`/mask approximations, and multiple box-shadow ordering.
 
 ## Publishing (optional)
 
-- **Chrome Web Store:** zip the *contents* of `claude2figma/extension/`:
+- **Releases:** pushing a `v*` tag runs the `release-artifacts` workflow,
+  which packages both parts and attaches
+  `claude2figma-extension-v*.zip` / `claude2figma-figma-plugin-v*.zip` to the
+  GitHub release automatically (v1.8.0 already ships both).
+- **Chrome Web Store:** upload the release's extension zip, or build one
+  locally:
 
   ```sh
   (cd claude2figma/extension && zip -r ../../claude2figma-extension.zip .)
@@ -332,8 +343,8 @@ mapping, `border-image`/mask approximations, and multiple box-shadow ordering.
   Fill in the privacy section honestly: *no data collected, nothing sold* —
   the code backs that up.
 - **Figma Community:** submit via a Figma org with the contents of
-  `claude2figma/figma-plugin/`; replace the placeholder manifest id with the
-  assigned one.
+  `claude2figma/figma-plugin/` (or the release plugin zip); replace the
+  placeholder manifest id with the assigned one.
 
 ## A note on originality
 
